@@ -1,4 +1,4 @@
-iw1 = 78;
+iw1 = 76;
 iw2 = 68;
 iw3 = 37;
 iw4 = 14;
@@ -9,7 +9,9 @@ ih3 = 6;
 cr1 = 5.5;
 cr2 = 13;
 cw1 = 70 + cr1 * 2;
-ch1 = 5;
+ch1 = 2;
+
+icoffset = 2.5;
 
 module insert2d() {
     polygon([
@@ -24,23 +26,25 @@ module insert2d() {
 }
 
 module insert3d() {
-    linear_extrude(5) {
+    translate([-iw1/2,0,0])
+    linear_extrude(20) {
         insert2d();
     }
 }
 
-module insert3d_small() {
-    resize([iw1-10,(ih1)-10,0]) {
+module outcut() {
+    resize([iw1-4,(ih1)-4,0]) {
         insert3d();
     }
 }
 
 module cap() {
+    translate([-cw1/2,0,0])
     difference() {
         union() {
             cylinder(ch1, r=cr2);
             translate([cw1, 0, 0]) cylinder(ch1, r=cr2);
-            translate([0,-cr2,0]) cube([cw1, cr2*2, ch1]);
+            //translate([0,-cr2+icoffset,0]) cube([cw1, cr2*2-icoffset, ch1]);
         }
         union() {
             cylinder(ch1, r=cr1);
@@ -49,9 +53,11 @@ module cap() {
     }
 }
 
-//difference() {
-//insert3d();
-//translate([5,3,0]) insert3d_small();
-//}
+translate([0,ih2+ih3+icoffset-cr2,0])
+difference() {
+insert3d();
+translate([0,1.5,0]) 
+outcut();
+}
 
 cap();
