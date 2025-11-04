@@ -3,11 +3,11 @@ include <polyedge.scad>
 battery_length=44.5;
 battery_diameter=10.5;
 batteries_in_row=5;
-batteries_rows=4;
+batteries_rows=1;
 gap = 1;
 tunnel_angle = 5;
-funnel_angle = 45;
-wall = 2;
+funnel_angle = 55;
+wall = 1.2;
 
 
 
@@ -15,19 +15,19 @@ tunnel_offset = battery_diameter + gap + wall + (sin(tunnel_angle) * battery_dia
 width = battery_diameter*batteries_in_row + gap*2 + wall*2;
 tunnel_upper_elevation = sin(tunnel_angle) * (width/2 - battery_diameter/2 - gap/2);
 tunnel_lower_elevation = sin(tunnel_angle) * (width/2 + battery_diameter/2 + gap/2 + battery_diameter);
-funnel_height = sin(funnel_angle) * width / 2 + battery_diameter;
-height = tunnel_lower_elevation + tunnel_offset + funnel_height + battery_diameter*batteries_rows;
+funnel_height = tan(funnel_angle) * width / 2;
+height = tunnel_lower_elevation + tunnel_offset + battery_diameter/2 + funnel_height + battery_diameter*batteries_rows;
 
 
 
 module front_side() {
     polyedge([ 
-        [battery_diameter/2 + gap, tunnel_offset+tunnel_upper_elevation,2], 
+        [battery_diameter/2 + battery_diameter/4 + gap/2, tunnel_offset+tunnel_upper_elevation,wall], 
         [width / 2, tunnel_offset, wall],  
         [width / 2, height, wall], 
         [width / 2 - wall, height, 0],
-        [width / 2 - wall, tunnel_offset + funnel_height, battery_diameter],
-        [battery_diameter/2 + gap/2, tunnel_offset+battery_diameter, battery_diameter], 
+        [width / 2 - wall, tunnel_offset + funnel_height + battery_diameter*1.5, battery_diameter],
+        [battery_diameter/2 + gap/2, tunnel_offset+battery_diameter*1.5, battery_diameter/2], 
     ],$fn=50);
 }
 
@@ -37,12 +37,12 @@ module back_side() {
         [0,height,wall],
         [wall,height,0],
         [wall,tunnel_offset + funnel_height, battery_diameter],
-        [width/2 - battery_diameter/2 - gap, tunnel_offset+battery_diameter, battery_diameter],
-        [width/2 - battery_diameter/2 + wall - gap, tunnel_lower_elevation + wall, battery_diameter],
-        [width + battery_diameter/2, wall,battery_diameter/2],
-        [width + battery_diameter/2 + wall, wall + battery_diameter/2, wall/2],
-         [width + battery_diameter/2 + wall*2 , wall + battery_diameter/2,wall/2],
-        [width + battery_diameter/2 + wall, 0,battery_diameter/2]
+        [width/2 - battery_diameter/4 - gap/2, tunnel_offset, battery_diameter/4],
+        [width/2 - battery_diameter/4 - gap/2, tunnel_lower_elevation + wall, battery_diameter/2],
+        [width+ battery_diameter, wall,battery_diameter/2],
+        [width + battery_diameter, wall + battery_diameter/3*2, wall/2],
+         [width + battery_diameter + wall , wall + battery_diameter/3*2,wall/2],
+        [width + battery_diameter, 0,battery_diameter/2]
         ],$fn=50);
 }
 
@@ -51,12 +51,10 @@ module side() {
         [0,0,wall],
         [0,height,wall],
         [width,height,wall],
-        [width,tunnel_offset,wall],
-        [width - battery_diameter,battery_diameter/2,battery_diameter/2],
-        [width + battery_diameter/2,wall+battery_diameter/4,wall],
-        [width + battery_diameter/2 + wall,wall+battery_diameter/2,wall/2],
-        [width + battery_diameter/2 + wall*2,wall+battery_diameter/2,wall/2],
-        [width + battery_diameter/2 + wall,wall,0]
+        [width,battery_diameter/2,battery_diameter/4],
+        [width+battery_diameter,wall+battery_diameter/8,0],
+        [width+battery_diameter/2,0,0],
+        [width,0,0]
         ],$fn=50);
 }
 
@@ -65,16 +63,18 @@ module battery() {
 }
 
 module batteries() {
-translate([width/2+ gap/2,battery_diameter + 6,0]) battery();
-translate([width/2+ gap + 4,battery_diameter ,0]) battery();
-translate([width/2+ 15, tunnel_offset/2 + 2.4,0]) battery();
-translate([width+2, tunnel_offset/2 + gap,0]) battery();
+translate([width/2+1,battery_diameter + 24,0]) battery();
+translate([width/2-4,battery_diameter + 15,0]) battery();
+translate([width/2+ gap + 2 ,battery_diameter+4 ,0]) battery();
+translate([width/2+ 16, tunnel_offset/2 + gap +1,0]) battery();
+translate([width - battery_diameter/2 +3 , tunnel_offset/2 + gap,0]) battery();
+
 }
 
 module three_sides() {
-    //translate([0,0,wall]) linear_extrude(height = 10) {
-    //    batteries();
-    //}
+//    translate([0,0,wall]) linear_extrude(height = 10) {
+//       batteries();
+//    }
     linear_extrude(height = wall + battery_length + gap) {
         back_side();
         translate([width/2,0,0]) front_side();
@@ -91,6 +91,6 @@ module top_side() {
 }
 
 three_sides();
-translate([-10,0,0]) 
-    top_side();
+//translate([-10,0,0]) 
+//    top_side();
 
