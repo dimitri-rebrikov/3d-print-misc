@@ -13,8 +13,8 @@ module bat() {
 
 module bats() {
     translate([0,bd*2,0]) bat();
-    translate([-bd*3.8,-bd*1,0]) bat();
-     translate([-1,-bd,0]) bat();
+    translate([-bd*3.1,-bd*1,0]) bat();
+     translate([-2.6,-bd*0.8,0]) bat();
 }
 
 module funnel2d() {
@@ -27,26 +27,26 @@ module funnel2d() {
             [bd,bd*4],
             [bd,bd*5],
             
-            [-bd*4,bd*5],
-            [-bd*4,bd*4],
-            [-bd,bd*3],
-            [0,bd*2]
+            [-bd*3,bd*5],
+            [-bd*3,bd*3],
+            [-bd,bd*2],
+            [0.3,bd*1]
         ]);
     };
 
     minkowski() {
         circle(br);
         polygon([
-            [0,0],[br,0],
-            [-2,-bd]
+            [0.3,0],[br,0],
+            [-1.6,-bd*0.8]
         ]);
     };
-    translate([-1.8,-bd*0.9,0])
+    translate([-1.8,-bd*0.7,0])
     minkowski() {
         circle(br);
         polygon([
-            [0,0],[-bd*4,-bd*5*0.05],
-            [-bd*4,-bd*5*0.05-g],[0,-g]
+            [0,0],[-bd*3,-bd*5*0.07],
+            [-bd*3,-bd*5*0.07-g],[0,-g]
         ]);
     };
 }
@@ -55,9 +55,10 @@ module side2d() {
     minkowski() {
         circle(br);
         polygon([
-            [-bd*4.3,-bd*1.4],[bd+br,-bd*1.4],
-            [bd+br,bd*4.5],[-bd*4.5,bd*4.5],
-            [-bd*2.8,-bd*1.25]
+            [-bd*3.3,-bd*1.3],[bd*1.2,-bd*1.3],
+            [bd*1.2,bd*4.5],[-bd*3.2,bd*4.5],
+            [-bd*3.2,bd*2.8],
+            [-bd*1.8,-bd*1.25]
         ]);
     };
 }
