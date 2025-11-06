@@ -12,7 +12,8 @@ module bat() {
 }
 
 module bats() {
-    translate([0,bd*2,0]) bat();
+    translate([0,bd*1.7,0]) bat();
+    translate([bd,bd*1.7,0]) bat();
     translate([-bd*3.1,-bd*1,0]) bat();
      translate([-2.6,-bd*0.8,0]) bat();
 }
@@ -21,23 +22,24 @@ module funnel2d() {
     minkowski() {
         circle(br);
         polygon([ 
-            [0,0],[br,0],
-            [bd,bd],
+            [-1,0],[br,0],
+            [bd*0.75,br],
+            [bd,bd*2],
             [bd,bd*2],
             [bd,bd*4],
             [bd,bd*5],
             
             [-bd*3,bd*5],
             [-bd*3,bd*3],
-            [-bd,bd*2],
-            [0.3,bd*1]
+//            [-bd,bd*2],
+            [0,bd*2]
         ]);
     };
 
     minkowski() {
         circle(br);
         polygon([
-            [0.3,0],[br,0],
+            [-1,0],[br,0],
             [-1.6,-bd*0.8]
         ]);
     };
