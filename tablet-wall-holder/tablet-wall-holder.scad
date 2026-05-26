@@ -48,6 +48,7 @@ backplate_margin = 5.0; // extra margin beyond screw center
 // Cavity dimensions (where the tablet sits)
 cavity_w = tablet_width  + 2 * clearance;
 cavity_h = tablet_height + clearance;  // open at top (+1mm at top)
+cavity_d = tablet_depth  + clearance;  // depth clearance for easy slide-in
 
 // Outer dimensions of the holder (same for all frames)
 // backplate_rim = wall_thickness so side walls are at the outer edge
@@ -137,7 +138,7 @@ module tablet_holder() {
             // (extending outward from the cavity).
             translate([0, 0, back_thickness - 0.01]) {
                 // Left wall: from cavity_x - wall_thickness to cavity_x
-                linear_extrude(height = tablet_depth + 0.02)
+                linear_extrude(height = cavity_d + 0.02)
                     polygon([
                         [cavity_x - wall_thickness - 0.01, -0.01],
                         [cavity_x + 0.01, -0.01],
@@ -145,7 +146,7 @@ module tablet_holder() {
                         [cavity_x - wall_thickness - 0.01, outer_h + 0.01]
                     ]);
                 // Right wall: from cavity_x + cavity_w to cavity_x + cavity_w + wall_thickness
-                linear_extrude(height = tablet_depth + 0.02)
+                linear_extrude(height = cavity_d + 0.02)
                     polygon([
                         [cavity_x + cavity_w - 0.01, -0.01],
                         [cavity_x + cavity_w + wall_thickness + 0.01, -0.01],
@@ -153,7 +154,7 @@ module tablet_holder() {
                         [cavity_x + cavity_w - 0.01, outer_h + 0.01]
                     ]);
                 // Bottom wall: from cavity_y - wall_thickness to cavity_y
-                linear_extrude(height = tablet_depth + 0.02)
+                linear_extrude(height = cavity_d + 0.02)
                     polygon([
                         [-0.01, cavity_y - wall_thickness - 0.01],
                         [outer_w + 0.01, cavity_y - wall_thickness - 0.01],
@@ -167,7 +168,7 @@ module tablet_holder() {
             // Same outer dimensions as backplate (all frames same outer size).
             // Inner cutout is the screen window, covering the tablet's
             // black bezel around the screen.
-            translate([0, 0, back_thickness + tablet_depth]) {
+            translate([0, 0, back_thickness + cavity_d]) {
                 difference() {
                     linear_extrude(height = front_thickness)
                         polygon(outer_poly(outer_w, outer_h));
@@ -185,9 +186,9 @@ module tablet_holder() {
         // Positioned at the bottom wall, extending into the cavity
         // for USB-C plug clearance.
         // Y: from slightly below bottom wall to cavity_y + usb_height
-        // Z: from back_thickness (side frame start) to back_thickness + tablet_depth
+        // Z: from back_thickness (side frame start) to back_thickness + cavity_d
         translate([usb_cx - usb_width/2, cavity_y - wall_thickness - 0.02, back_thickness - 0.01])
-            cube([usb_width, wall_thickness + usb_height + 0.02, tablet_depth + 0.02]);
+            cube([usb_width, wall_thickness + usb_height + 0.02, cavity_d + 0.02]);
 
         // 4 SCREW HOLES — at the 4 corners of the backplate frame
         // Positioned more inwards than the frontplate's inner cutout,
@@ -200,5 +201,4 @@ module tablet_holder() {
     }
 }
 
-// Render
-tablet_holder();
+// Render is done in render.scad (include this file and call tablet_holder())
