@@ -24,6 +24,7 @@ front_thickness = 2.0;   // front bezel thickness (Z direction)
 screw_dia      = 3.0;  // shaft diameter (3mm screw)
 screw_head_dia = 7.0;  // head recess diameter (7mm head)
 screw_head_dep = 3.0;  // head recess depth (3mm head height)
+screw_clearance = 0.3; // extra clearance for 3D printing tolerance
 
 // --- Screw Position ---
 // Screws are positioned ~5mm from the screen window edge,
@@ -97,14 +98,14 @@ function inner_poly(w, h, left, right, bottom, top) = [
 // ============================================================
 
 module screw_hole() {
-    // Shaft through the backplate only (3mm diameter)
-    cylinder(h = back_thickness, d = screw_dia, $fn = 36);
+    // Shaft through the backplate only (3mm + clearance)
+    cylinder(h = back_thickness, d = screw_dia + screw_clearance, $fn = 36);
     // Countersunk head at the front of the backplate (Z=back_thickness)
     // Conical recess for flathead screw: 3mm at bottom (shaft), 7mm at top (head)
     // 3mm deep, recessed into the backplate so it doesn't scratch the tablet
-    // d1 = screw_dia (bottom, matches shaft), d2 = screw_head_dia (top, flathead)
+    // d1 = screw_dia + clearance (bottom, matches shaft), d2 = screw_head_dia (top, flathead)
     translate([0, 0, back_thickness - screw_head_dep])
-        cylinder(h = screw_head_dep, d1 = screw_dia, d2 = screw_head_dia, $fn = 36);
+        cylinder(h = screw_head_dep, d1 = screw_dia + screw_clearance, d2 = screw_head_dia, $fn = 36);
 }
 
 // ============================================================
