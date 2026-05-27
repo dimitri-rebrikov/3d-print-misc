@@ -16,15 +16,15 @@ screen_height  = 218;
 clearance      = 1.0;
 
 // --- Wall Thicknesses ---
-back_thickness  = 5.0;   // backplate thickness (Z direction)
+back_thickness  = 4.0;   // backplate thickness (Z direction)
 wall_thickness  = 3.0;   // side wall thickness (X/Y direction)
 front_thickness = 2.0;   // front bezel thickness (Z direction)
 
 // --- Screw Holes ---
 screw_dia      = 3.0;  // shaft diameter (3mm screw)
 screw_head_dia = 7.0;  // head recess diameter (7mm head)
-screw_head_dep = 3.0;  // head recess depth (3mm head height)
-screw_clearance = 0.3; // extra clearance for 3D printing tolerance
+screw_head_dep = 3.5;  // head recess depth (3mm head height + 0.5mm below surface)
+screw_clearance = 0.5; // extra clearance for 3D printing tolerance
 
 // --- Screw Position ---
 // Screws are positioned ~5mm from the screen window edge,
@@ -226,13 +226,14 @@ module tablet_holder() {
         }
 
         // USB CUTOUT — at the BOTTOM of the model
-        // On the side frame ONLY (not through backplate or frontplate)
         // Positioned at the bottom wall, extending into the cavity
         // for USB-C plug clearance.
+        // Shifted 1mm towards the backplate (negative Z) so it digs
+        // slightly into the backplate for better cable clearance.
         // Y: from slightly below bottom wall to cavity_y + usb_height
-        // Z: from back_thickness (side frame start) to back_thickness + cavity_d
-        translate([usb_cx - usb_width/2, cavity_y - wall_thickness - 0.02, back_thickness - 0.01])
-            cube([usb_width, wall_thickness + usb_height + 0.02, cavity_d + 0.02]);
+        // Z: from back_thickness - 1 to back_thickness + cavity_d
+        translate([usb_cx - usb_width/2, cavity_y - wall_thickness - 0.02, back_thickness - 1.01])
+            cube([usb_width, wall_thickness + usb_height + 0.02, cavity_d + 1.02]);
 
         // 4 SCREW HOLES — at the 4 corners of the backplate frame
         // Positioned more inwards than the frontplate's inner cutout,
