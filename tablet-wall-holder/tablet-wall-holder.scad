@@ -28,7 +28,8 @@ inner_radius = 2.0;  // screen window inner corner rounding radius
 screw_dia      = 3.0;  // shaft diameter (3mm screw)
 screw_head_dia = 7.0;  // head recess diameter (7mm head)
 screw_head_dep = 3.5;  // head recess depth (3mm head height + 0.5mm below surface)
-screw_clearance = 0.5; // extra clearance for 3D printing tolerance
+screw_clearance      = 1.0; // extra clearance for shaft (3D printing tolerance)
+screw_head_clearance = 0.5; // extra clearance for screw head
 
 // --- Screw Position ---
 // Screws are positioned ~5mm from the screen window edge,
@@ -145,9 +146,9 @@ module screw_hole() {
     // Countersunk head at the front of the backplate (Z=back_thickness)
     // Conical recess for flathead screw: 3mm at bottom (shaft), 7mm at top (head)
     // 3mm deep, recessed into the backplate so it doesn't scratch the tablet
-    // d1 = screw_dia + clearance (bottom, matches shaft), d2 = screw_head_dia (top, flathead)
+    // d1 = screw_dia + clearance (bottom, matches shaft), d2 = screw_head_dia + clearance (top)
     translate([0, 0, back_thickness - screw_head_dep])
-        cylinder(h = screw_head_dep, d1 = screw_dia + screw_clearance, d2 = screw_head_dia, $fn = 36);
+        cylinder(h = screw_head_dep, d1 = screw_dia + screw_clearance, d2 = screw_head_dia + screw_head_clearance, $fn = 36);
 }
 
 // ============================================================
