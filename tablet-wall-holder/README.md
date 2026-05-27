@@ -55,6 +55,7 @@ The tablet slides between the backplate and the frontplate into the holder and i
 - The front panel shall be 2 mm thick.
 - The back panel shall be thick enough to keep the screw head inside.
 - Calculate all dimensions in dependency to each other so the model is stable on parameter changes.
+- Round off all outer edges which are not touching the wall.
 
 ## Printing
 

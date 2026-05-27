@@ -20,6 +20,10 @@ back_thickness  = 4.0;   // backplate thickness (Z direction)
 wall_thickness  = 3.0;   // side wall thickness (X/Y direction)
 front_thickness = 2.0;   // front bezel thickness (Z direction)
 
+// --- Corner Rounding ---
+outer_radius = 5.0;  // outer corner rounding radius (vertical edges)
+inner_radius = 2.0;  // screen window inner corner rounding radius
+
 // --- Screw Holes ---
 screw_dia      = 3.0;  // shaft diameter (3mm screw)
 screw_head_dia = 7.0;  // head recess diameter (7mm head)
@@ -100,6 +104,18 @@ backplate_inner = screw_from_edge + backplate_margin;
 usb_cx = cavity_x + clearance + tablet_width - usb_from_right;
 
 // ============================================================
+// Helper: Rounded rectangle (hull of 4 circles)
+// ============================================================
+module rounded_rect(w, h, r) {
+    hull() {
+        translate([r, r]) circle(r = r);
+        translate([w - r, r]) circle(r = r);
+        translate([r, h - r]) circle(r = r);
+        translate([w - r, h - r]) circle(r = r);
+    }
+}
+
+// ============================================================
 // Helper: Outer polygon (counter-clockwise)
 // ============================================================
 function outer_poly(w, h) = [
@@ -148,9 +164,9 @@ module tablet_holder() {
             // This allows screw holes to be positioned in the backplate
             // area that is visible through the screen window.
             difference() {
-                // Backplate solid
+                // Backplate solid (rounded outer corners)
                 linear_extrude(height = back_thickness)
-                    polygon(outer_poly(outer_w, outer_h));
+                    rounded_rect(outer_w, outer_h, outer_radius);
 
                 // Inner cutout (hollow frame)
                 translate([0, 0, -0.01])
@@ -180,31 +196,41 @@ module tablet_holder() {
             // Cavity front/back is formed by the frontplate and backplate.
             // Walls are wall_thickness wide, positioned at the CAVITY EDGE
             // (extending outward from the cavity).
+            // Uses intersection with rounded_rect so outer edges are rounded
+            // matching the backplate and frontplate.
             translate([0, 0, back_thickness - 0.01]) {
-                // Left wall: from cavity_x - wall_thickness to cavity_x
-                linear_extrude(height = cavity_d + 0.02)
-                    polygon([
-                        [cavity_x - wall_thickness - 0.01, -0.01],
-                        [cavity_x + 0.01, -0.01],
-                        [cavity_x + 0.01, outer_h + 0.01],
-                        [cavity_x - wall_thickness - 0.01, outer_h + 0.01]
-                    ]);
-                // Right wall: from cavity_x + cavity_w to cavity_x + cavity_w + wall_thickness
-                linear_extrude(height = cavity_d + 0.02)
-                    polygon([
-                        [cavity_x + cavity_w - 0.01, -0.01],
-                        [cavity_x + cavity_w + wall_thickness + 0.01, -0.01],
-                        [cavity_x + cavity_w + wall_thickness + 0.01, outer_h + 0.01],
-                        [cavity_x + cavity_w - 0.01, outer_h + 0.01]
-                    ]);
-                // Bottom wall: from cavity_y - wall_thickness to cavity_y
-                linear_extrude(height = cavity_d + 0.02)
-                    polygon([
-                        [-0.01, cavity_y - wall_thickness - 0.01],
-                        [outer_w + 0.01, cavity_y - wall_thickness - 0.01],
-                        [outer_w + 0.01, cavity_y + 0.01],
-                        [-0.01, cavity_y + 0.01]
-                    ]);
+                intersection() {
+                    // Outer shape (rounded, matching backplate/frontplate)
+                    linear_extrude(height = cavity_d + 0.02)
+                        rounded_rect(outer_w, outer_h, outer_radius);
+                    // Three wall polygons (sharp, clipped by rounded outer shape)
+                    union() {
+                        // Left wall: from cavity_x - wall_thickness to cavity_x
+                        linear_extrude(height = cavity_d + 0.02)
+                            polygon([
+                                [cavity_x - wall_thickness - 0.01, -0.01],
+                                [cavity_x + 0.01, -0.01],
+                                [cavity_x + 0.01, outer_h + 0.01],
+                                [cavity_x - wall_thickness - 0.01, outer_h + 0.01]
+                            ]);
+                        // Right wall: from cavity_x + cavity_w to cavity_x + cavity_w + wall_thickness
+                        linear_extrude(height = cavity_d + 0.02)
+                            polygon([
+                                [cavity_x + cavity_w - 0.01, -0.01],
+                                [cavity_x + cavity_w + wall_thickness + 0.01, -0.01],
+                                [cavity_x + cavity_w + wall_thickness + 0.01, outer_h + 0.01],
+                                [cavity_x + cavity_w - 0.01, outer_h + 0.01]
+                            ]);
+                        // Bottom wall: from cavity_y - wall_thickness to cavity_y
+                        linear_extrude(height = cavity_d + 0.02)
+                            polygon([
+                                [-0.01, cavity_y - wall_thickness - 0.01],
+                                [outer_w + 0.01, cavity_y - wall_thickness - 0.01],
+                                [outer_w + 0.01, cavity_y + 0.01],
+                                [-0.01, cavity_y + 0.01]
+                            ]);
+                    }
+                }
             }
 
             // 3. FRONTPLATE — bezel-hiding frame
@@ -212,15 +238,14 @@ module tablet_holder() {
             // Same outer dimensions as backplate (all frames same outer size).
             // Inner cutout is the screen window, covering the tablet's
             // black bezel around the screen.
+            // Both outer and inner corners are rounded.
             translate([0, 0, back_thickness + cavity_d]) {
                 difference() {
                     linear_extrude(height = front_thickness)
-                        polygon(outer_poly(outer_w, outer_h));
-                    translate([0, 0, -0.01])
+                        rounded_rect(outer_w, outer_h, outer_radius);
+                    translate([fp_inner_x, fp_inner_y, -0.01])
                         linear_extrude(height = front_thickness + 0.02)
-                            polygon(inner_poly(outer_w, outer_h,
-                                fp_inner_x, outer_w - fp_inner_x - screen_width,
-                                fp_inner_y, outer_h - fp_inner_y - screen_height));
+                            rounded_rect(screen_width, screen_height, inner_radius);
                 }
             }
         }
