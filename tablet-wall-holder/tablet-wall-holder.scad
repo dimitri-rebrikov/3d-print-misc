@@ -31,6 +31,17 @@ screw_clearance = 0.3; // extra clearance for 3D printing tolerance
 // so they are visible/accessible through the frontplate opening.
 screw_margin   = 5.0;  // distance from screen window edge to screw center
 
+// --- Camera Groove ---
+// The tablet has a main camera on the back near the bottom edge.
+// It protrudes ~1mm above the surface. A groove in the backplate
+// (front-facing surface) provides clearance so the tablet can slide in.
+// The groove runs from the top of the backplate all the way down
+// to the inner surface of the bottom side wall.
+camera_dia          = 12.0;  // camera bump diameter
+camera_from_left    = 16.0;  // camera center from LEFT edge of tablet
+camera_clearance    = 0.5;   // extra clearance around camera bump
+camera_depth        = 1.5;   // groove depth (>1mm camera protrusion)
+
 // --- USB-C Cutout ---
 usb_width      = 16;
 usb_height     = 10;
@@ -41,6 +52,12 @@ usb_from_right = 27;  // from RIGHT edge of tablet to USB-C center
 // so the screw holes are within the backplate frame.
 // Holes shall be not nearer than 5mm to the edge of the back panel.
 backplate_margin = 5.0; // extra margin beyond screw center
+
+// --- Screw Position Margin from Camera Groove ---
+// Screws must be more inwards than the camera groove.
+// This margin ensures the screw head (radius = screw_head_dia/2)
+// does not overlap with the groove.
+camera_screw_margin = screw_head_dia / 2 + 5.0; // 5mm gap from screw head edge to groove edge
 
 // ============================================================
 // DERIVED DIMENSIONS
@@ -64,8 +81,17 @@ cavity_y = wall_thickness;
 fp_inner_x = cavity_x + clearance + (tablet_width  - screen_width)  / 2;
 fp_inner_y = cavity_y + clearance + (tablet_height - screen_height) / 2;
 
-// Screw position: ~5mm from screen window edge
-screw_from_edge = fp_inner_x + screw_margin;
+// Camera groove position (center X in holder coordinates)
+camera_cx = cavity_x + clearance + camera_from_left;
+camera_groove_w = camera_dia + camera_clearance;  // groove width
+camera_groove_x = camera_cx - camera_groove_w / 2;  // groove left edge
+camera_groove_right = camera_cx + camera_groove_w / 2;  // groove right edge
+
+// Screw position: derived from BOTH constraints:
+// 1) Must be visible through screen window: fp_inner_x + screw_margin
+// 2) Must be more inwards than camera groove: camera_groove_right + camera_screw_margin
+// The MAX ensures both constraints are satisfied.
+screw_from_edge = max(fp_inner_x + screw_margin, camera_groove_right + camera_screw_margin);
 
 // Backplate inner cutout: wider than screw position by margin
 backplate_inner = screw_from_edge + backplate_margin;
@@ -122,13 +148,30 @@ module tablet_holder() {
             // This allows screw holes to be positioned in the backplate
             // area that is visible through the screen window.
             difference() {
+                // Backplate solid
                 linear_extrude(height = back_thickness)
                     polygon(outer_poly(outer_w, outer_h));
+
+                // Inner cutout (hollow frame)
                 translate([0, 0, -0.01])
                     linear_extrude(height = back_thickness + 0.02)
                         polygon(inner_poly(outer_w, outer_h,
                             backplate_inner, backplate_inner,
                             backplate_inner, backplate_inner));
+
+                // Camera groove — on the front-facing surface of the backplate
+                // (Z = back_thickness - camera_depth to back_thickness)
+                // Runs from the TOP of the backplate all the way down
+                // to the inner surface of the bottom side wall (cavity_y).
+                // Provides clearance for the camera bump so the tablet can slide in.
+                translate([camera_groove_x, cavity_y - 0.01, back_thickness - camera_depth - 0.01])
+                    linear_extrude(height = camera_depth + 0.02)
+                        polygon([
+                            [-0.01, -0.01],
+                            [camera_groove_w + 0.02, -0.01],
+                            [camera_groove_w + 0.02, outer_h - cavity_y + 0.02],
+                            [-0.01, outer_h - cavity_y + 0.02]
+                        ]);
             }
 
             // 2. SIDE FRAME — 3-sided wall (left, right, bottom)

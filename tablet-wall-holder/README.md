@@ -13,6 +13,7 @@
 | Bezel (top/bottom) | ~12.7 mm (black border around screen) |
 | USB-C | Bottom edge, right side (27 mm from right edge) |
 | Headphone jack | Bottom edge, next to USB-C |
+| Main Camera | On the back side near to the bottom edge, ~12 mm diameter, position: 16 mm from the camera center to the left side. | 
 
 ## Description
 
@@ -22,7 +23,8 @@ A wall-mounted holder for a tablet used as a home automation panel. The tablet s
 
 ### 1. Backplate
 
-A frame (not solid) against the wall. Contains 4 screw holes at the corners. Screw heads are recessed into the backplate (countersunk from the front) so they don't scratch the tablet. Screw holes are positioned more inwards than the inner cutout of the frontplate, so they are visible and accessible by a screwdriver from the front through the cutout of the front plate (approx. 5 mm away from any edge of the front panel). The holes shall be no nearer than 5 mm to the edge of the back panel. The backplate frame is broader inwards than the frontplate.
+A frame (not solid) against the wall. Contains 4 screw holes at the corners. Screw heads are recessed into the backplate (countersunk from the front) so they don't scratch the tablet. Screw holes are positioned more inwards than the inner cutout of the frontplate, so they are visible and accessible by a screwdriver from the front through the cutout of the front plate (approx. 5 mm away from any edge of the front panel). The holes shall be no nearer than 5 mm to the edge of the back panel. The backplate frame is broader inwards than the frontplate. 
+The backside of the table contains main camera which raises abover the surface for aprox 1 mm. The camera will be not in use during the tablet being in the holder as it faces the wall. As the camera is near the bottom side, if the tablet slides into the holder the camera will slide almost all way down the holder. So there shall be a groove for the camera in on the surface of the backplate facing towards front. For simpicity the groove can just go from the top all way down to the inner suface of the bottom of the side frame. The position of the screw holes shall be more inwards as the position of the camera groove.
 
 **Screw specs:** Flathead, conical shaft.  
 - Screw diameter: 3 mm  
