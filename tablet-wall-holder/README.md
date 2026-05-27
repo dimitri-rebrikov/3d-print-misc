@@ -56,6 +56,8 @@ The tablet slides between the backplate and the frontplate into the holder and i
 - The back panel shall be thick enough to keep the screw head inside.
 - Calculate all dimensions in dependency to each other so the model is stable on parameter changes.
 - Round off all outer edges which are not touching the wall.
+- Add filet of 1.5 mm on the top edge of the front plate.
+- Use BOSL2 library for filets and others if necessary.
 
 ## Printing
 

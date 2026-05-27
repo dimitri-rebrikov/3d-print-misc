@@ -23,6 +23,10 @@ front_thickness = 2.0;   // front bezel thickness (Z direction)
 // --- Corner Rounding ---
 outer_radius = 5.0;  // outer corner rounding radius (vertical edges)
 inner_radius = 2.0;  // screen window inner corner rounding radius
+fillet_top   = 1.5;  // top-edge fillet radius (frontplate)
+
+// --- Rendering Quality ---
+$fn = 64;  // global fragment count for smooth curves
 
 // --- Screw Holes ---
 screw_dia      = 3.0;  // shaft diameter (3mm screw)
@@ -239,15 +243,20 @@ module tablet_holder() {
             // Same outer dimensions as backplate (all frames same outer size).
             // Inner cutout is the screen window, covering the tablet's
             // black bezel around the screen.
-            // Both outer and inner corners are rounded.
+            // Uses BOSL2 offset_sweep with os_circle top treatment
+            // to add a 1.5mm fillet to all top edges (outer perimeter
+            // and inner screen window).
             translate([0, 0, back_thickness + cavity_d]) {
-                difference() {
-                    linear_extrude(height = front_thickness)
-                        rounded_rect(outer_w, outer_h, outer_radius);
-                    translate([fp_inner_x, fp_inner_y, -0.01])
-                        linear_extrude(height = front_thickness + 0.02)
-                            rounded_rect(screen_width, screen_height, inner_radius);
-                }
+                // Build 2D paths with rounded corners
+                // rect() defaults to anchor=CENTER (centered at origin).
+                // Use anchor=FRONT+LEFT to align bottom-left corner at origin,
+                // matching the coordinate system of the rest of the model.
+                outer_path = rect([outer_w, outer_h], rounding = outer_radius, anchor = FRONT + LEFT);
+                inner_path = rect([screen_width, screen_height], rounding = inner_radius, anchor = FRONT + LEFT);
+                // Region = outer shape with inner as hole
+                rgn = [outer_path, move([fp_inner_x, fp_inner_y], inner_path)];
+                // Sweep with top-edge roundover
+                offset_sweep(rgn, height = front_thickness, top = os_circle(r = fillet_top));
             }
         }
 
