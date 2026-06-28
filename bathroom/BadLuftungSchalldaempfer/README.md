@@ -440,9 +440,36 @@ Sie werden auf die folgenden Flächen geklebt:
 
 ---
 
+## Abhängigkeiten
+
+Dieses Projekt verwendet **BOSL2** (The Belfry OpenScad Library v2) für die Abrundungen und Fillets.
+
+### Installation
+
+BOSL2 muss im OpenSCAD-Bibliotheksverzeichnis installiert sein:
+
+```bash
+# Windows: C:\Users\<Benutzer>\Documents\OpenSCAD\libraries\BOSL2
+git clone https://github.com/BelfrySCAD/BOSL2.git
+```
+
+Oder über den OpenSCAD Library Manager installieren.
+
+### Verwendete BOSL2-Module
+
+| Modul | Verwendung |
+|-------|-----------|
+| `cyl()` | Abgerundete Scheiben (Vorderwand, Bodenplatte) mit `rounding1`/`rounding2` |
+| `tube()` | Hohlzylinder (Z2, Z4) mit optionalem `rounding2` für die Oberkante |
+
+Die `rounded_disc`-Funktion fällt auf manuelle `rotate_extrude`-Fillets zurück, wenn der Abrundungsradius größer als die Scheibenhöhe ist (z.B. `radius_aussen=5mm` bei `boden_dicke=3mm`).
+
+---
+
 ## SCAD-Parameter
 
 Alle relevanten Parameter können in `BadLuftungSchalldaempfer.scad` angepasst werden:
+
 
 | Variable | Standard | Beschreibung |
 |----------|----------|-------------|
