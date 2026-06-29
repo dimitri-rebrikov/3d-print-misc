@@ -68,7 +68,10 @@ zylinder_tiefe = zylinder_mindest_hoehe + axial_spalt_1;
 
 zylinder_1_hoehe = zylinder_tiefe - axial_spalt_1;  // = zylinder_mindest_hoehe
 zylinder_2_hoehe = zylinder_tiefe - axial_spalt_2;
-zylinder_3_hoehe = zylinder_tiefe - axial_spalt_3;
+// Z3 reicht bis zur Vorderwand-Oberseite des Außenteils
+// = boden_dicke (Bodenplatte) + zylinder_tiefe (bis Vorderwand) + boden_dicke (Vorderwand-Dicke)
+// Abzüglich boden_dicke (Start auf Bodenplatte) = zylinder_tiefe + boden_dicke
+zylinder_3_hoehe = zylinder_tiefe + boden_dicke;
 
 // Außenkanten
 aussenkante_wandteil   = zylinder_3_aussen;  // Bodenplatte: bündig mit Z3
@@ -125,17 +128,26 @@ module hollow_cylinder_unten(inner_r, outer_r, h) {
             polygon(round_corners(path, radius = radii, $fn = 24));
 }
 
-// Scheibe mit abgerundeter oberer Außenkante
-module scheibe_mit_abrundung(outer_r, h, r_corner) {
+// Scheibe mit abgerundeter Außenkante (oben oder unten)
+// oben=true: Abrundung oben-außen (für Vorderwand Außenteil)
+// oben=false: Abrundung unten-außen (für Bodenplatte Wandteil)
+module scheibe_mit_abrundung(outer_r, h, r_corner, oben = true) {
     eff_r = min(r_corner, h);
     
-    path = [
-        [0, 0],          // Ecke 0: unten-innen (scharf)
-        [outer_r, 0],    // Ecke 1: unten-außen (scharf)
-        [outer_r, h],    // Ecke 2: oben-außen (gerundet)
-        [0, h]           // Ecke 3: oben-innen (scharf)
-    ];
-    radii = [0, 0, eff_r, 0];
+    path = oben
+        ? [
+            [0, 0],          // Ecke 0: unten-innen (scharf)
+            [outer_r, 0],    // Ecke 1: unten-außen (scharf)
+            [outer_r, h],    // Ecke 2: oben-außen (gerundet)
+            [0, h]           // Ecke 3: oben-innen (scharf)
+          ]
+        : [
+            [0, 0],          // Ecke 0: unten-innen (scharf)
+            [outer_r, 0],    // Ecke 1: unten-außen (gerundet)
+            [outer_r, h],    // Ecke 2: oben-außen (scharf)
+            [0, h]           // Ecke 3: oben-innen (scharf)
+          ];
+    radii = oben ? [0, 0, eff_r, 0] : [0, eff_r, 0, 0];
     
     rotate_extrude(angle = 360, convexity = 4)
         polygon(round_corners(path, radius = radii, $fn = 24));
@@ -146,9 +158,10 @@ module scheibe_mit_abrundung(outer_r, h, r_corner) {
 // ============================================================
 module wandteil() {
     // 1. Hintere Wand (Bodenplatte) mit Loch
+    // Abrundung unten-außen (zur Wand hin)
     module bodenplatte() {
         difference() {
-            scheibe_mit_abrundung(aussenkante_wandteil, boden_dicke, radius_aussen);
+            scheibe_mit_abrundung(aussenkante_wandteil, boden_dicke, radius_aussen, oben = false);
             // Rohrloch
             translate([0, 0, -0.01])
                 cylinder(r = zylinder_1_innen, h = boden_dicke + 0.02);
