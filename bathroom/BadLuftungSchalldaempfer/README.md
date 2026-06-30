@@ -134,6 +134,10 @@ Aus den Strömungsspalten und der Labyrinth-Überlappung werden alle weiteren Ma
 | `daemmung_dicke` | 6,0 mm | TPU-Dämmring-Dicke |
 | `magnet_durchmesser` | 6,0 mm | Neodym-Magnet Durchmesser |
 | `magnet_dicke` | 2,0 mm | Neodym-Magnet Dicke |
+| `$fa_sichtbar` | 2 | Minimaler Winkel für sichtbare Außenkanten (Z3, Bodenplatte) |
+| `$fs_sichtbar` | 1,0 mm | Minimale Bogenlänge für sichtbare Außenkanten → Facettenbreite 1,0 mm |
+| `$fn_innen` | 64 | Feste Segmentzahl für innenliegende Teile (Z1, Z2, Vorderwand) |
+| `$fn_klein` | 36 | Für kleine Details (Magnete, Podeste, Säulen) |
 
 ## 3D-Druck-Anleitung
 

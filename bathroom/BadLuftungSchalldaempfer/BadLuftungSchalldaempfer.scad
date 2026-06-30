@@ -37,7 +37,17 @@ radius_aussen      = 5.0;   // Äußere Kanten-Abrundung (mm)
 radius_zylinder    = 2.0;   // Zylinder-Endkanten Abrundung (mm)
 
 // --- Rendering-Qualität ---
-$fn = 64;
+// Sichtbare Außenkanten (Z3, Bodenplatte): fein für smoothen 3D-Druck
+// $fa=1 → max 360 Segmente, $fs=0.5 → Facetten max 0.5mm
+// Bei r=106mm (Z3): 666 Segmente, Facettenbreite 1.0mm
+$fa_sichtbar  = 2;    // Minimaler Winkel für sichtbare Teile
+$fs_sichtbar  = 1.0;  // Minimale Bogenlänge für sichtbare Teile (mm)
+
+// Innere Teile (Z1, Z2, Vorderwand): gröber, spart Renderzeit
+$fn_innen     = 64;   // Feste Segmentzahl für innenliegende Teile
+
+// Kleine Details (Magnete, Podeste, Säulen)
+$fn_klein     = 36;   // Für kleine Durchmesser ausreichend
 
 // ============================================================
 // ABGELEITETE GRÖSSEN (alle berechnet, keine festen Werte)
@@ -109,7 +119,9 @@ saeule_z2_hoehe = zylinder_2_hoehe + axial_spalt_2 - boden_dicke + daemmung_dick
 // ============================================================
 
 // Hohlzylinder mit abgerundeter Oberkante (für Wandteil: Z1, Z3)
-module hollow_cylinder_oben(inner_r, outer_r, h) {
+// sichtbar=true: verwendet $fa_sichtbar/$fs_sichtbar für glatte Außenkanten
+// sichtbar=false: verwendet $fn_innen für innenliegende Teile
+module hollow_cylinder_oben(inner_r, outer_r, h, sichtbar = false) {
     breite = outer_r - inner_r;
     eff_r = min(radius_zylinder, h, breite / 2);
     
@@ -121,6 +133,9 @@ module hollow_cylinder_oben(inner_r, outer_r, h) {
     ];
     radii = [0, 0, eff_r, eff_r];
     
+    $fa = sichtbar ? $fa_sichtbar : $fa;
+    $fs = sichtbar ? $fs_sichtbar : $fs;
+    $fn = sichtbar ? 0 : $fn_innen;
     rotate_extrude(angle = 360, convexity = 4)
         translate([inner_r, 0, 0])
             polygon(round_corners(path, radius = radii, $fn = 24));
@@ -139,6 +154,7 @@ module hollow_cylinder_unten(inner_r, outer_r, h) {
     ];
     radii = [eff_r, eff_r, 0, 0];
     
+    $fn = $fn_innen;
     rotate_extrude(angle = 360, convexity = 4)
         translate([inner_r, 0, 0])
             polygon(round_corners(path, radius = radii, $fn = 24));
@@ -147,7 +163,9 @@ module hollow_cylinder_unten(inner_r, outer_r, h) {
 // Scheibe mit abgerundeter Außenkante (oben oder unten)
 // oben=true: Abrundung oben-außen (für Vorderwand Außenteil)
 // oben=false: Abrundung unten-außen (für Bodenplatte Wandteil)
-module scheibe_mit_abrundung(outer_r, h, r_corner, oben = true) {
+// sichtbar=true: verwendet $fa_sichtbar/$fs_sichtbar für glatte Außenkanten
+// sichtbar=false: verwendet $fn_innen für innenliegende Teile
+module scheibe_mit_abrundung(outer_r, h, r_corner, oben = true, sichtbar = false) {
     eff_r = min(r_corner, h);
     
     path = oben
@@ -165,6 +183,9 @@ module scheibe_mit_abrundung(outer_r, h, r_corner, oben = true) {
           ];
     radii = oben ? [0, 0, eff_r, 0] : [0, eff_r, 0, 0];
     
+    $fa = sichtbar ? $fa_sichtbar : $fa;
+    $fs = sichtbar ? $fs_sichtbar : $fs;
+    $fn = sichtbar ? 0 : $fn_innen;
     rotate_extrude(angle = 360, convexity = 4)
         polygon(round_corners(path, radius = radii, $fn = 24));
 }
@@ -174,10 +195,10 @@ module scheibe_mit_abrundung(outer_r, h, r_corner, oben = true) {
 // ============================================================
 module wandteil() {
     // 1. Hintere Wand (Bodenplatte) mit Loch
-    // Abrundung unten-außen (zur Wand hin)
+    // Abrundung unten-außen (zur Wand hin) — sichtbar = glatte Außenkante
     module bodenplatte() {
         difference() {
-            scheibe_mit_abrundung(aussenkante_wandteil, boden_dicke, radius_aussen, oben = false);
+            scheibe_mit_abrundung(aussenkante_wandteil, boden_dicke, radius_aussen, oben = false, sichtbar = true);
             // Rohrloch
             translate([0, 0, -0.01])
                 cylinder(r = zylinder_1_innen, h = boden_dicke + 0.02);
@@ -194,11 +215,13 @@ module wandteil() {
     }
     
     // 3. Zylinder 3 (äußerer Ring des Wandteils) — Abrundung oben
+    // sichtbar = glatte Außenkante via $fa_sichtbar/$fs_sichtbar
     module zylinder_3() {
         translate([0, 0, boden_dicke])
             hollow_cylinder_oben(
                 zylinder_3_innen, zylinder_3_aussen,
-                zylinder_3_hoehe
+                zylinder_3_hoehe,
+                sichtbar = true
             );
     }
 
@@ -212,7 +235,7 @@ module wandteil() {
                 cylinder(
                     d = magnet_durchmesser,
                     h = magnet_dicke,
-                    $fn = 36
+                    $fn = $fn_klein
                 );
         }
     }
@@ -246,11 +269,11 @@ module aussenteil() {
                 mx = magnet_kreis_radius * cos(w);
                 my = magnet_kreis_radius * sin(w);
                 translate([mx, my, -saeule_z2_hoehe])
-                    cylinder(
-                        d = magnet_durchmesser,
-                        h = saeule_z2_hoehe,
-                        $fn = 36
-                    );
+                cylinder(
+                    d = magnet_durchmesser,
+                    h = saeule_z2_hoehe,
+                    $fn = $fn_klein
+                );
             }
         }
     }
@@ -293,7 +316,7 @@ module daemmung_1() {
             mx = magnet_kreis_radius * cos(w);
             my = magnet_kreis_radius * sin(w);
             translate([mx, my, -0.01])
-                cylinder(d = magnet_durchmesser + 0.5, h = daemmung_dicke + 0.02, $fn = 36);
+                cylinder(d = magnet_durchmesser + 0.5, h = daemmung_dicke + 0.02, $fn = $fn_klein);
         }
     }
 }
@@ -309,7 +332,7 @@ module daemmung_2() {
             mx = magnet_kreis_radius * cos(w);
             my = magnet_kreis_radius * sin(w);
             translate([mx, my, -0.01])
-                cylinder(d = magnet_durchmesser + 0.5, h = daemmung_dicke + 0.02, $fn = 36);
+                cylinder(d = magnet_durchmesser + 0.5, h = daemmung_dicke + 0.02, $fn = $fn_klein);
         }
     }
 }
