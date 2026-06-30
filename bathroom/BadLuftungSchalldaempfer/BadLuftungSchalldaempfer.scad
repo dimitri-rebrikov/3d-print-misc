@@ -20,7 +20,9 @@ max_radius         = max_durchmesser / 2;
 // --- Wandstärken ---
 wand_dicke         = 3.0;   // Zylinder-Wandstärke (mm)
 boden_dicke        = 3.0;   // Vordere/hintere Wandstärke (mm)
-zylinder_mindest_hoehe = 30.0;  // Mindesthöhe der niedrigsten Zylinderwand (mm)
+
+// --- Labyrinth ---
+labyrinth_ueberlappung = 20.0;  // Überlappung der Zylinder im Labyrinth (mm)
 
 // --- Dämmmaterial ---
 daemmung_dicke     = 6.0;   // TPU-Dämmring (mm)
@@ -59,15 +61,25 @@ spalt_23 = A_rohr / (2 * PI * zylinder_2_aussen);
 zylinder_3_innen  = zylinder_2_aussen + spalt_23;
 zylinder_3_aussen = zylinder_3_innen + wand_dicke;
 
-// --- Axiale Spalte ---
+// --- Axiale Spalte (Strömungsfläche = A_rohr) ---
 axial_spalt_1 = A_rohr / (2 * PI * zylinder_1_aussen) + daemmung_dicke;
 axial_spalt_2 = A_rohr / (2 * PI * zylinder_2_aussen) + daemmung_dicke;
 axial_spalt_3 = A_rohr / (2 * PI * zylinder_3_aussen) + daemmung_dicke;
 
-zylinder_tiefe = zylinder_mindest_hoehe + axial_spalt_1;
+// --- Zylinder-Höhen (basierend auf Labyrinth-Überlappung) ---
+// Z1 ragt von der Bodenplatte nach oben, Z2 ragt von der Vorderwand nach unten
+// Überlappung = zylinder_1_hoehe + zylinder_2_hoehe - zylinder_tiefe
+// Mit zylinder_2_hoehe = zylinder_tiefe - axial_spalt_2:
+// Überlappung = zylinder_1_hoehe - axial_spalt_2
+// => zylinder_1_hoehe = labyrinth_ueberlappung + axial_spalt_2
+zylinder_1_hoehe = labyrinth_ueberlappung + axial_spalt_2;
 
-zylinder_1_hoehe = zylinder_tiefe - axial_spalt_1;  // = zylinder_mindest_hoehe
+// zylinder_tiefe = Abstand Bodenplatte → Vorderwand
+zylinder_tiefe = zylinder_1_hoehe + axial_spalt_1;
+
+// Z2 ragt von der Vorderwand zurück zur Bodenplatte
 zylinder_2_hoehe = zylinder_tiefe - axial_spalt_2;
+
 // Z3 reicht bis zur Vorderwand-Oberseite des Außenteils
 // = boden_dicke (Bodenplatte) + zylinder_tiefe (bis Vorderwand) + boden_dicke (Vorderwand-Dicke)
 // Abzüglich boden_dicke (Start auf Bodenplatte) = zylinder_tiefe + boden_dicke
@@ -84,9 +96,13 @@ magnet_kreis_radius = zylinder_2_aussen - magnet_durchmesser / 2;
 // Winkel für 3 Magnete (120° Abstand, 3-Punkt = kein Wackeln)
 magnet_winkel = [30, 150, 270];
 
-// Säulenhöhe = durch Z2 + axialer Spalt 2 - boden_dicke
-// Die Säulen ragen von der Vorderwand durch Z2 hindurch bis zur Oberseite der Bodenplatte
-saeule_z2_hoehe = zylinder_2_hoehe + axial_spalt_2 - boden_dicke;
+// Säulenhöhe = Z2_Höhe + axialer Spalt 2 - boden_dicke + daemmung_dicke
+// Die Säulen wachsen von der Vorderwand-Innenseite (z=0) und ragen durch die Dämmung 1
+// (die auf der Vorderwand-Innenseite liegt, z=0 bis z=-daemmung_dicke)
+// bis zu den Podesten auf der Bodenplatte (Podest-Oberseite bei z=boden_dicke+magnet_dicke)
+// Die +daemmung_dicke sorgt dafür, dass die Säulen 1mm über die Podeste ragen
+// (für Magnet-Kontakt: Podest-Oberseite bei z=boden_dicke+magnet_dicke)
+saeule_z2_hoehe = zylinder_2_hoehe + axial_spalt_2 - boden_dicke + daemmung_dicke;
 
 // ============================================================
 // MODULE: Grundkörper mit Abrundungen via BOSL2 round_corners()
@@ -215,15 +231,17 @@ module wandteil() {
 // ============================================================
 module aussenteil() {
     // Vordere Wand — Abrundung oben, mit Magnetsäulen auf der Unterseite
-    // Die Säulen ragen von der Vorderwand nach unten zur Bodenplatte
+    // Die Säulen ragen von der Vorderwand (z=0) nach unten zur Bodenplatte
     // und definieren den axialen Spalt 2
+    // Die Dämmung 1 liegt auf der Unterseite (z=0 bis z=-daemmung_dicke)
+    // und hat Aussparungen für die Säulen
     module vordere_wand() {
         union() {
             // Basis-Scheibe
             scheibe_mit_abrundung(aussenkante_aussenteil, boden_dicke, radius_aussen);
             
             // Magnetsäulen auf der Unterseite der Vorderwand (bei z = 0)
-            // Ragen nach unten zur Bodenplatte — definieren den axialen Spalt 2
+            // Ragen nach unten zur Bodenplatte
             for (w = magnet_winkel) {
                 mx = magnet_kreis_radius * cos(w);
                 my = magnet_kreis_radius * sin(w);
@@ -265,10 +283,19 @@ module schalldaempfer() {
 // DÄMMSCHICHTEN (separat druckbar, z.B. aus TPU ohne Wände)
 // ============================================================
 
-// Dämmung 1: auf der Vorderwand (Außenteil), innerhalb von Z2
-// Keine Aussparungen — Säulen ragen nicht durch die Vorderwand
+// Dämmung 1: auf der Unterseite der Vorderwand (Außenteil), innerhalb von Z2
+// Mit Aussparungen für die Magnetsäulen (die Säulen ragen durch die Dämmung)
 module daemmung_1() {
-    cylinder(r = zylinder_2_innen - 0.2, h = daemmung_dicke);
+    difference() {
+        cylinder(r = zylinder_2_innen - 0.2, h = daemmung_dicke);
+        // Aussparungen für die Magnetsäulen
+        for (w = magnet_winkel) {
+            mx = magnet_kreis_radius * cos(w);
+            my = magnet_kreis_radius * sin(w);
+            translate([mx, my, -0.01])
+                cylinder(d = magnet_durchmesser + 0.5, h = daemmung_dicke + 0.02, $fn = 36);
+        }
+    }
 }
 
 // Dämmung 2: auf der Bodenplatte (Wandteil), zwischen Z1 und Z3

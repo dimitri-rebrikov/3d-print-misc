@@ -1,536 +1,191 @@
 # BadLuftungSchalldaempfer — Schalldämpfer für Badezimmer-Lüftung
 
-**Schalldämpfer-Kappe für das Badezimmer-Lüftungsrohr**
+## Zweck
 
-Der Ventilator im 100mm-Lüftungsrohr überträgt Betriebsgeräusche und Strömungsgeräusche durch das Rohr in den Raum. Dieser Schalldämpfer wird als Kappe über das Wandloch gesetzt und dämpft die Geräusche durch ein **zirkuläres Labyrinth**, das die Luft auf ihrem Weg vom Bad ins Rohr mehrfach umlenkt, bevor sie abgesaugt wird.
+Der Schalldämpfer wird als große Kappe über das Lüftungsrohr in der Wand aufgesetzt. Der Lüfter selbst befindet sich im Rohr (Durchmesser 100 mm) und leitet die Geräusche durch das Rohr in das Badezimmer. Dieser Schalldämpfer reduziert diese Geräusche, indem er ein zirkuläres Labyrinth bildet, das den Schallweg verlängert und dämpft.
 
----
+## Aufbau
 
-## 📋 Inhaltsverzeichnis
+Der Schalldämpfer besteht aus **zwei Hauptteilen** und **zwei Dämmschichten**:
 
-1. [Funktionsprinzip](#funktionsprinzip)
-2. [Technische Daten](#technische-daten)
-3. [Aufbau & Design](#aufbau--design)
-4. [Montage](#montage)
-5. [3D-Druck Anleitung](#3d-druck-anleitung)
-6. [SCAD-Parameter](#scad-parameter)
-7. [Materialliste](#materialliste)
-8. [Wartung](#wartung)
+### 1. Wandteil (wandteil)
+- **Bodenplatte** (hintere Wand): Scheibe mit Loch (Durchmesser 130 mm) für das Rohr, abgerundete Außenkante zur Wand hin
+- **Zylinder 1 (Z1)**: Innerster Ring um das Rohr (Innendurchmesser = Lochdurchmesser 130 mm)
+- **Zylinder 3 (Z3)**: Äußerer Ring (Außendurchmesser max. 200 mm)
+- **3 Podeste**: Kleine zylindrische Erhebungen (Durchmesser 6 mm, Höhe 2 mm) auf der Bodenplatte für die Gegenmagnete
 
----
+### 2. Außenteil (aussenteil)
+- **Vorderwand**: Scheibe mit abgerundeter Außenkante, bündig mit Z2
+- **Zylinder 2 (Z2)**: Mittlerer Ring, der zwischen Z1 und Z3 passt
+- **3 Magnetsäulen**: Zylindrische Säulen (Durchmesser 6 mm) auf der Unterseite der Vorderwand, die zu den Podesten ragen
+
+### 3. Dämmung 1 (daemmung_1)
+- Ring aus TPU oder anderem dämmenden Material (Dicke 6 mm)
+- Liegt auf der **Innenseite** der Vorderwand (Außenteil), innerhalb von Z2
+- Die Magnetsäulen ragen **durch** die Dämmung hindurch (Säulen sind länger als die Dämmung dick ist)
+- Mit **Aussparungen** für die 3 Magnetsäulen (Durchmesser + 0,5 mm Spiel)
+- Durchmesser: Z2-Innendurchmesser - 0,2 mm Spiel
+
+### 4. Dämmung 2 (daemmung_2)
+- Ring aus TPU oder anderem dämmenden Material (Dicke 6 mm)
+- Liegt auf der Bodenplatte (Wandteil), zwischen Z1 und Z3
+- Mit Aussparungen für die Podeste
+- Durchmesser: Z3-Innendurchmesser - 0,2 mm Spiel
 
 ## Funktionsprinzip
 
-### Luftstrom
+### Labyrinth-Struktur
+
+Beim Zusammensetzen fahren die Zylinderwände ineinander:
 
 ```
-Bad → [radialer Eintrittsspalt] → über Zylinder 3 → Spalt 3-2
-→ über Zylinder 2 → Spalt 2-1 → über Zylinder 1
-→ Innenraum → 100mm Rohr → Außen
+Wandteil:          Außenteil:
+  Z1 (innen) ────  Z2 (mitte) ────  Z3 (außen)
+       ↑                 ↑                 ↑
+    axialer           axialer           axialer
+    Spalt 1           Spalt 2           Spalt 3
 ```
 
-Die Luft wird **radial** zwischen Wandteil und Außenteil eingesaugt, durchläuft dann das Labyrinth aus 3 konzentrischen/versetzten Zylinderwänden und wird schließlich durch das 100mm-Rohr abgesaugt.
+Die Luft strömt durch das Rohr (100 mm) in den Schalldämpfer und wird durch folgende Spalte geführt:
 
-### Schalldämpfung
+1. **Radialer Spalt Z1→Z2**: Seitlicher Spalt zwischen Z1 (außen) und Z2 (innen)
+2. **Axialer Spalt 1**: Vertikaler Spalt zwischen Z1-Oberkante und Vorderwand (Außenteil)
+3. **Radialer Spalt Z2→Z3**: Seitlicher Spalt zwischen Z2 (außen) und Z3 (innen)
+4. **Axialer Spalt 2**: Vertikaler Spalt zwischen Z2-Unterkante und Bodenplatte (Wandteil)
 
-- **Mehrfache Umlenkung:** Die Luft wird 3× um 180° umgelenkt → Schallwellen werden reflektiert und absorbiert
-- **Gedruckte TPU-Dämmringe:** 2 Dämmringe (5-10mm dick) aus flexiblem TPU-Filament werden in die Zwischenräume eingelegt — passgenau aus dem SCAD-Modell generiert
-- **Versetzte Mittelpunkte:** Wand- und Außenteil haben unterschiedliche Mittelpunkte → variierende Spaltbreiten → verbesserte Dämpfung durch asymmetrische Resonanz
+## Berechnungshierarchie
 
+Die Berechnung erfolgt in einer klaren Hierarchie:
 
----
+### Schritt 1: Strömungsspalte (basierend auf A_rohr)
 
-## Technische Daten
+Alle Spalte sind so dimensioniert, dass die **Strömungsfläche** (Querschnittsfläche für die Luft) überall gleich groß ist wie die des 100-mm-Rohrs:
 
-| Eigenschaft | Wert |
-|-------------|------|
-| **Rohr-Durchmesser** | 100 mm |
-| **Wandloch-Durchmesser** | 130 mm |
-| **Lochmittelpunkt → Ecke** | 105 mm |
-| **Abstand zur Eckwand** | ~10 mm (min.) |
-| **Außendurchmesser (Wandteil)** | ~219 mm |
-| **Außendurchmesser (Außenteil)** | ~213 mm |
-| **Bautiefe (gesamt)** | ~36 mm (berechnet) |
-| **Labyrinth-Tiefe** | ~30 mm (berechnet) |
-| **Wandstärke** | 3 mm |
+$$A_{Rohr} = \pi \cdot (50\text{ mm})^2 = 7854\text{ mm}^2$$
 
-| **Gewicht (ca.)** | ~80-120g pro Teil (PLA) |
-| **Befestigung Wandteil** | Tesa-Streifen (oder Schrauben) |
-| **Befestigung Außenteil** | 3× Neodym-Magnete (6×2 mm) — Magnete im Außenteil (Z2), ziehen an Z3 (Wandteil) |
-| **Druckbett-Kompatibilität** | ✅ Passt auf 220mm-Bett (max Y=218.7mm) |
+**Radiale Spalte** (seitlich zwischen den Zylindern):
+$$s_{12} = \frac{A_{Rohr}}{2\pi \cdot r_{Z1,außen}} \quad\text{und}\quad s_{23} = \frac{A_{Rohr}}{2\pi \cdot r_{Z2,außen}}$$
 
-### Zylinder-Geometrie (von innen nach außen)
+**Axiale Spalte** (vertikal zwischen Zylinderkanten und gegenüberliegenden Wänden):
+$$a_1 = \frac{A_{Rohr}}{2\pi \cdot r_{Z1,außen}} + d_{Dämmung} \quad\text{und}\quad a_2 = \frac{A_{Rohr}}{2\pi \cdot r_{Z2,außen}} + d_{Dämmung}$$
 
-Die Radien und Höhen aller Zylinder werden automatisch aus den Parametern berechnet:
+Die Dämmungsdicke wird addiert, da die Dämmung im Spalt liegt und den verfügbaren Luftquerschnitt verkleinert.
 
-**Radiale Spalte (zwischen den Zylindern) — Strömungsprinzip:**
+### Schritt 2: Labyrinth-Überlappung
 
-Die Luft muss zwischen den Zylindern hindurchströmen. Damit sie **nicht schneller** wird als im Rohr (sonst gibt's Strömungsgeräusche), muss die seitliche Durchtrittsfläche an jedem Zylinder mindestens so groß sein wie die Rohr-Querschnittsfläche.
-
-Die Rohrfläche ist:
-```
-A_rohr = π × (rohr_durchmesser/2)² = π × 50² = 7.854 mm²
-``orr`
+Die Labyrinth-Überlappung ist der zentrale Parameter, der die Zylinderhöhen bestimmt:
 
-Die seitliche Fläche an Zylinder i ist: `Umfang × Spalt = 2π × r_i × spalt_i`
+$$Überlappung = Z1_{Höhe} + Z2_{Höhe} - Zylinder_{Tiefe}$$
 
-Daraus folgt die **optimale** Spaltbreite:
-```
-spalt_i = A_rohr / (2π × r_i)
-```
+Mit $Z2_{Höhe} = Zylinder_{Tiefe} - a_2$ ergibt sich:
 
-**Problem — zu wenig Platz:** Die optimalen Spalte sind zusammen breiter als der verfügbare Platz zwischen Rohrloch-Rand und Eckwand. Z.B.:
-- Z1 (r=53mm): optimaler Spalt = 7.854 / (2π × 53) ≈ 23.6 mm
-- Z2 (r≈80mm): optimaler Spalt ≈ 15.7 mm
-- Z3 (r≈98mm): optimaler Spalt ≈ 12.7 mm
-
-**Lösung — Proportionaler Versatz (keine Skalierung!):** Die Spaltbreiten bleiben optimal. Stattdessen bekommt **jeder Zylinder einen eigenen Versatz** in X-Richtung (von der Ecke weg), proportional zu seinem Außenradius. Z1 bleibt fix (Versatz = 0), Z3 bekommt den maximalen Versatz, Z2 einen proportionalen Anteil:
-
-```
-versatz_3 = zylinder_3_aussen - max_radius_ecke
-versatz_2 = versatz_3 × (r_2_aussen - r_1_aussen) / (r_3_aussen - r_1_aussen)
-```
-
-Bei den aktuellen Parametern:
-- `versatz_2 = 11.4 × (89.4 - 68.0) / (106.4 - 68.0) = 6.3 mm`
-- `versatz_3 = 11.4 mm`
-
-Auf der Eckseite gilt: `loch_mitte_x + versatz_3 - wand_abstand_ecke = 105 + 11.4 - 10 = 106.4 = zylinder_3_aussen` ✅
-
-**Vorteil:** Die Spalte bleiben optimal groß → die Luft strömt nicht schneller → keine Strömungsgeräusche. Der proportionale Versatz erzeugt ein **konisches Labyrinth** mit variablen Spaltbreiten, das stehende Wellen verhindert und die Dämpfung über ein breiteres Frequenzspektrum verbessert.
-
-**Höhen:** Jeder Zylinder hat seinen eigenen axialen Spalt zur gegenüberliegenden Wand:
-```
-axial_spalt_i = A_rohr / (2π × r_i_aussen) + daemmung_dicke
-zylinder_i_hoehe = zylinder_tiefe - axial_spalt_i
-```
-
-Die Bautiefe `zylinder_tiefe` wird aus der Mindesthöhe der niedrigsten Wand abgeleitet:
-```
-zylinder_tiefe = zylinder_mindest_hoehe + axial_spalt_1
-```
-(Z1 hat den größten axialen Spalt → ist die niedrigste Wand → bekommt genau `zylinder_mindest_hoehe`)
-
-| Zylinder | Teil | Innenradius | Außenradius | Höhe (ca.) | Axialer Spalt zu |
-|----------|------|-------------|-------------|------------|------------------|
-| **1** | Wandteil | rohr_radius | +wand_dicke | zylinder_mindest_hoehe | Vorderwand |
-| **2** | Außenteil | Z1_außen + spalt_12 | +wand_dicke | berechnet | Bodenplatte |
-| **3** | Wandteil | Z2_außen + spalt_23 | +wand_dicke | berechnet | Vorderwand |
-
-**Dämmringe (separat aus TPU drucken):**
-
-| Dämmung | Von | Bis | Form | Beschreibung |
-|---------|-----|-----|------|-------------|
-| **1** | Z1_außen (68mm) | Z2_innen (86.4mm) | **Volle Scheibe** | Innenhof von Wand 2 |
-| **2** | Z1_außen (68mm) | Z3_innen (103.4mm) | Ring mit Loch | Zwischen Wand 1 und Wand 3 |
-
-> **Hinweis:** Die Dämmringe (6mm TPU) liegen auf den Flächen (Bodenplatte/Vorderwand) und füllen die Zwischenräume zwischen den Zylindern. Der Luftspalt zwischen den Zylindern bleibt frei für die Strömung.
-
----
-
-## Aufbau & Design
-
-### Die zwei Teile
-
-#### 1. Wandteil (Wall Part) — an der Wand
-
-```
-┌─────────────────────────────────┐
-│  ╭───────────────────────────╮  │
-│  │  ╭─────────────────────╮  │  │
-│  │  │    ╭───────╮        │  │  │
-│  │  │    │ ○  ○  │        │  │  │
-│  │  │    │  ○○   │        │  │  │
-│  │  │    ╰───────╯        │  │  │
-│  │  ╰─────────────────────╯  │  │
-│  ╰───────────────────────────╯  │
-└─────────────────────────────────┘
-```
-
-- **Hintere Wand** (3mm): Runde Scheibe mit 100mm-Loch für das Rohr
-- **Zylinder 1** (innen): Direkt um das Rohrloch, 30mm hoch
-- **Zylinder 3** (außen): Äußerer Ring des Wandteils, mit Magnetsäulen
-- **Rückseite:** Glatte Fläche für Tesa-Streifen
-
-#### 2. Außenteil (Outer Part) — sichtbar im Raum
-
-```
-┌─────────────────────────────────┐
-│  ╭───────────────────────────╮  │
-│  │  ╭─────────────────────╮  │  │
-│  │  │                     │  │  │
-│  │  │   (geschlossene     │  │  │
-│  │  │    Frontfläche)     │  │  │
-│  │  │                     │  │  │
-│  │  ╰─────────────────────╯  │  │
-│  ╰───────────────────────────╯  │
-└─────────────────────────────────┘
-```
-
-- **Vordere Wand** (3mm): Geschlossene runde Scheibe (Luft tritt radial ein)
-- **Zylinder 2** (innen): Passt zwischen Zylinder 1 und 3
-
-### Räumliche Anordnung (wichtig für Montage!)
-
-Der Schalldämpfer besteht aus zwei Teilen, die **ineinander greifen**:
-
-```
-                     ┌──────────────────┐
-                     │  Vorderwand      │  ← Außenteil (im Raum sichtbar)
-                     │  (Außenteil)     │
-        ┌──────┐     │  ┌────────────┐  │     ┌──────┐
-        │      ├─────┤  │     W2     │  ├─────┤      │
-        │  W1  │     │  │            │  │     │  W3  │
-        │      │     │  └────────────┘  │     │      │
-──[Rohr]─►    │     └──────────────────┘     │      │
-        │      │                              │      │
-        └──┬───┘                              └──┬───┘
-           │    ┌──────────────────────────┐     │
-           │    │  Bodenplatte (Wandteil)  │     │
-           │    └──────────────────────────┘     │
-           └──────────────────┬──────────────────┘
-                              │
-                       ← Luft Eintritt →
-```
-
-**Wandteil** (an der Wand montiert):
-- **Bodenplatte** — runde Scheibe, deckungsgleich mit der Vorderwand des Außenteils (gleicher Mittelpunkt bei `versatz_3`, gleicher Außenradius). Das 100mm-Rohrloch liegt separat bei (0,0) und wird ausgeschnitten.
-- **Wand 1** (Z1) — innerster Zylinder, direkt um das Rohrloch bei (0,0)
-- **Wand 3** (Z3) — äußerer Zylinder des Wandteils, mit Magnetsäulen
-
-**Außenteil** (im Raum sichtbar, magnetisch gehalten):
-- **Vorderwand** — geschlossene runde Scheibe (Luft tritt radial ein)
-- **Wand 2** (Z2) — innerer Zylinder, passt zwischen Z1 und Z3
-
-**Luftstrom-Pfad (von außen nach innen):**
-
-```
-Bad → [radial zwischen Vorderwand und Bodenplatte]
-      → über Z3 hinweg → durch Spalt 3-2 (zwischen Z2 und Z3)
-      → über Z2 hinweg → durch Spalt 2-1 (zwischen Z1 und Z2)
-      → über Z1 hinweg → durch Rohrloch (100mm) → Außen
-```
-
-Die Luft wird **3× um 180° umgelenkt** — jede Umlenkung reflektiert und absorbiert Schallwellen.
-
-### Dämmungen — wo liegen sie?
-
-Die Dämmringe werden **separat aus TPU gedruckt** (ohne Wände/Top/Bottom Layers)
-und auf der Seite angebracht, wo die jeweilige Wand angeschlossen ist:
-
-```
-                     ┌──────────────────┐
-                     │  Vorderwand      │
-                     │  ┌────────────┐  │
-        ┌──────┐     │  │    W2      │  │     ┌──────┐
-        │      ├─────┤  │   ████     │  ├─────┤      │
-        │  W1  │     │  │   ████     │  │     │  W3  │
-        │      │     │  └────────────┘  │     │      │
-──[Rohr]─►    │     └──────────────────┘     │      │
-        │      │         ░░░░░░░              │      │
-        └──┬───┘         ░░░░░░░              └──┬───┘
-           │    ┌──────────────────────────┐     │
-           │    │  Bodenplatte             │     │
-           │    └──────────────────────────┘     │
-           └──────────────────┬──────────────────┘
-                              │
-```
-
-| Dämmung | Liegt auf | Bereich | Form |
-|---------|-----------|---------|------|
-| **1** ██ | **Vorderwand** (Außenteil) | Z1_außen (68mm) bis Z2_innen (86.4mm) | Volle Scheibe — Z1 ist nicht hier |
-| **2** ░░ | **Bodenplatte** (Wandteil) | Z1_außen (68mm) bis Z3_innen (103.4mm) | Ring mit Loch für Z1 |
+$$Überlappung = Z1_{Höhe} - a_2$$
 
-> **Wichtig:** Dämmung 1 wird auf der **Vorderwand des Außenteils** angebracht (die Seite mit Zylinder 2). Dämmung 2 wird auf der **Bodenplatte des Wandteils** angebracht (zwischen Zylinder 1 und 3).
-
-### Versatz-Prinzip (proportional)
+Daraus folgt:
 
-Jeder Zylinder (außer Z1) bekommt einen eigenen Versatz in X-Richtung (von der Ecke weg), **proportional zu seinem Außenradius**. Dadurch:
+$$Z1_{Höhe} = Überlappung + a_2$$
 
-- **Auf der Eckseite:** Z3_aussen passt in den verfügbaren Platz (≤ max_radius_ecke)
-- **Auf der Raumseite:** Die Zylinder haben mehr Platz → größerer Abstand zur Wand
-- **Konisches Labyrinth:** Variable Spaltbreiten durch proportionale Verschiebung → verbesserte Dämpfung über ein breiteres Frequenzspektrum
+Die Überlappung beträgt **20 mm** — das sorgt für ausreichend Labyrinth-Wirkung, ohne dass die Zylinder zu lang werden.
 
-**Automatische Berechnung:** Die radialen Spaltbreiten werden nach dem Strömungsprinzip berechnet (optimal, nicht skaliert). Da Z3_aussen dadurch größer ist als `max_radius_ecke`, bekommt jeder Zylinder einen proportionalen Versatz:
+### Schritt 3: Alle anderen Werte
 
-```
-versatz_3 = zylinder_3_aussen - max_radius_ecke
-versatz_2 = versatz_3 × (r_2_aussen - r_1_aussen) / (r_3_aussen - r_1_aussen)
-```
+Aus den Strömungsspalten und der Labyrinth-Überlappung werden alle weiteren Maße abgeleitet:
 
-Bei den aktuellen Parametern:
-- `versatz_2 = 6.3 mm` (Z2, Außenteil)
-- `versatz_3 = 11.4 mm` (Z3, Wandteil)
+- **Zylinder-Tiefe** (Abstand Bodenplatte → Vorderwand): $Z1_{Höhe} + a_1$
+- **Z2-Höhe**: $Zylinder_{Tiefe} - a_2$
+- **Z3-Höhe**: $Zylinder_{Tiefe} + Boden_{Dicke}$ (reicht bis Vorderwand-Oberseite)
+- **Säulenhöhe**: $Z2_{Höhe} + a_2 - Boden_{Dicke} + Dämmung_{Dicke}$ (von Vorderwand-Innenseite durch die Dämmung bis zu den Podesten + 1 mm Überstand)
 
-### Druckbett-Kompatibilität
+### Beispielwerte (mit aktuellen Parametern)
 
-Der Schalldämpfer ist für Druckbetten bis **220mm × 220mm** optimiert:
+| Größe | Wert | Formel |
+|-------|------|--------|
+| A_rohr | 7854 mm² | π · 50² |
+| Z1_aussen | 68 mm | 65 + 3 |
+| spalt_12 | 18,4 mm | 7854 / (2π · 68) |
+| Z2_aussen | 89,4 mm | 68 + 18,4 + 3 |
+| spalt_23 | 14,0 mm | 7854 / (2π · 89,4) |
+| Z3_aussen | 106,4 mm | 89,4 + 14,0 + 3 |
+| axial_spalt_1 | 24,4 mm | 7854 / (2π · 68) + 6 |
+| axial_spalt_2 | 20,0 mm | 7854 / (2π · 89,4) + 6 |
+| Z1_Höhe | 40,0 mm | 20 + 20,0 |
+| Zylinder_Tiefe | 64,4 mm | 40,0 + 24,4 |
+| Z2_Höhe | 44,4 mm | 64,4 - 20,0 |
+| Z3_Höhe | 67,4 mm | 64,4 + 3 |
+| Säulenhöhe | 67,4 mm | 44,4 + 20,0 - 3 + 6 (Z2_Höhe + a_2 - Boden + Dämmung) |
 
-| Teil | Max X | Max Y | Passt auf 220mm? |
-|------|-------|-------|------------------|
-| **Wandteil** | 120.7 mm | 218.7 mm | ✅ |
-| **Außenteil** | 117.7 mm | 212.7 mm | ✅ |
+### Befestigung
 
-Die Teile werden **flach auf dem Druckbett** gedruckt (die runde Scheibe liegt auf dem Bett). Die maximale Y-Ausdehnung ist der Durchmesser der Bodenplatte (218.7mm beim Wandteil) — das passt knapp auf ein 220mm-Bett.
+- **3 Neodym-Magnete** (Durchmesser 6 mm, Dicke 2 mm) halten das Außenteil am Wandteil
+- Jeweils ein Magnet wird auf die Unterseite jeder Säule und auf die Oberseite jedes Podestes geklebt
+- Die Säulen ragen 1 mm über die Podeste hinaus, sodass die Magnete sicher Kontakt haben
+- 3 Magnete im 120°-Winkel = 3-Punkt-Auflage = kein Wackeln
 
-> **Hinweis:** Ursprünglich war ein 4. Zylinder (Z4) vorgesehen. Dieser wurde entfernt, weil der Gesamtdurchmesser von ~300mm nicht auf handelsübliche 220mm-Druckbetten gepasst hätte. Mit 3 Zylindern wird eine gute Dämpfung bei voller Druckbett-Kompatibilität erreicht.
+## Parameter
 
----
+| Parameter | Wert | Beschreibung |
+|-----------|------|-------------|
+| `rohr_durchmesser` | 100 mm | Lüftungsrohr-Innendurchmesser |
+| `loch_durchmesser` | 130 mm | Wandloch-Durchmesser |
+| `max_durchmesser` | 200 mm | Maximaler Außendurchmesser (Druckbett) |
+| `wand_dicke` | 3,0 mm | Zylinder-Wandstärke |
+| `boden_dicke` | 3,0 mm | Vordere/hintere Wandstärke |
+| `labyrinth_ueberlappung` | 20,0 mm | Überlappung der Zylinder im Labyrinth |
+| `daemmung_dicke` | 6,0 mm | TPU-Dämmring-Dicke |
+| `magnet_durchmesser` | 6,0 mm | Neodym-Magnet Durchmesser |
+| `magnet_dicke` | 2,0 mm | Neodym-Magnet Dicke |
 
-## Montage
+## 3D-Druck-Anleitung
 
-### Benötigte Materialien
+### Benötigte Dateien
 
-| Teil | Menge | Spezifikation |
-|------|-------|---------------|
-| Gedrucktes Wandteil | 1 | PLA/PETG, 3mm Wandstärke |
-| Gedrucktes Außenteil | 1 | PLA/PETG, 3mm Wandstärke |
-| Gedruckte Dämmung 1 (innen) | 1 | TPU, ohne Wände/Top/Bottom |
-| Gedruckte Dämmung 2 (mitte) | 1 | TPU, ohne Wände/Top/Bottom |
-| Neodym-Magnete | 6 | Ø6mm × 2mm, Scheiben |
-| Sekundenkleber | 1 | Für Magnete |
-| Tesa-Streifen (Powerstrips) | 2-4 | Für Wandmontage |
-
-
-### Schritt-für-Schritt
-
-#### 1. Magnete einkleben
-
-Die Magnete sitzen im **Außenteil (Z2)** und ziehen an **Z3 (Wandteil)**. Die Magnetsäulen (Podeste) auf Z2 ragen durch die Vorderwand (Außenteil). Die Mini-Säulen auf Z3 dienen als Markierung.
-
-**Außenteil (Zylinder 2):**
-1. Die 3 Magnetsäulen auf der **Oberseite von Zylinder 2** (die Seite, die zur Vorderwand zeigt) mit Sekundenkleber bestreichen
-2. Magnete (Ø6×2mm) auf die Säulen setzen — **Polarität beachten:** Alle Magnete mit gleicher Polung (z.B. Norden zeigt nach oben)
-3. Andrücken und trocknen lassen
-
-**Wandteil (Zylinder 3):**
-1. Die 3 Mini-Säulen (2mm hoch) auf der **Oberseite von Zylinder 3** (die Seite, die zum Außenteil zeigt) dienen als Markierung für die Magnet-Positionen
-2. Magnete (Ø6×2mm) auf die Mini-Säulen kleben
-3. **Polarität umgekehrt** zum Außenteil (damit sie sich anziehen)
-4. Mit Sekundenkleber fixieren
-
-> **Tipp:** Am einfachsten: Magnete auf die Säulen des Außenteils kleben, dann Wandteil aufsetzen → die Magnete rasten durch die Anziehungskraft automatisch an den Mini-Säulen auf Z3 ein. Dann die Magnete auf dem Wandteil festkleben.
-
-
-#### 2. TPU-Dämmringe einlegen
-
-Die 2 Dämmringe werden passgenau aus dem SCAD-Modell generiert (separate STLs).
-Sie werden auf die folgenden Flächen geklebt:
-
-| Dämmung | Liegt auf | Bereich | Form |
-|---------|-----------|---------|------|
-| **1** | Vorderwand (Außenteil) | 68–86.4mm | Volle Scheibe |
-| **2** | Bodenplatte (Wandteil) | 68–103.4mm | Ring mit Loch für Z1 |
-
-**Einlegen:**
-1. Dämmung 1 auf die **Rückseite der Vorderwand** (Außenteil) kleben — innerhalb von Zylinder 2
-2. Dämmung 2 auf die **Bodenplatte** (Wandteil) kleben — zwischen Zylinder 1 und 3
-3. Sekundenkleber oder Sprühkleber dünn auftragen
-4. Andrücken und trocknen lassen
-
-> **Wichtig:** Die Dämmringe sind 6mm dick und passgenau aus TPU gedruckt. Sie müssen nicht zugeschnitten werden — einfach aus dem Druckbett lösen und einkleben.
-
-
-#### 3. Wandteil montieren
-
-1. Wandloch reinigen (Staub, alter Schmutz)
-2. Tesa-Streifen auf der **Rückseite** des Wandteils anbringen (auf der glatten Fläche)
-3. Wandteil zentriert über das 100mm-Loch positionieren und andrücken
-4. Optional: Zusätzlich mit Schrauben durch die dafür vorgesehenen Stellen sichern
-
-#### 4. Außenteil aufsetzen
-
-1. Außenteil mit den Zylindern voraus vor das Wandteil halten
-2. Die Magnete ziehen das Teil automatisch in die korrekte Position
-3. Leicht andrücken bis die Magnete einrasten
-
-> **Wichtig:** Das Außenteil muss so ausgerichtet sein, dass der Versatz (die "dickere" Seite) von der Ecke weg zeigt.
-
----
-
-## 3D-Druck Anleitung
+| Datei | Beschreibung |
+|-------|-------------|
+| `BadLuftungSchalldaempfer_wandteil.stl` | Wandteil (Bodenplatte + Z1 + Z3 + Podeste) |
+| `BadLuftungSchalldaempfer_aussenteil.stl` | Außenteil (Vorderwand + Z2 + Säulen) |
+| `BadLuftungSchalldaempfer_daemmung_1.stl` | Dämmung 1 (innen, auf Vorderwand) |
+| `BadLuftungSchalldaempfer_daemmung_2.stl` | Dämmung 2 (mitte, auf Bodenplatte) |
 
 ### Druck-Einstellungen
 
-| Parameter | Empfehlung |
-|-----------|------------|
-| **Filament** | PLA, PETG oder ABS |
-| **Schichthöhe** | 0.2 mm |
-| **Düse** | 0.4 mm |
-| **Wandlinien** | 3 (für 0.4mm Düse = 1.2mm, aber wir brauchen 3mm → 7-8 Linien) |
-| **Perimeter** | 7-8 (für 3mm Wandstärke bei 0.4mm Düse) |
-| **Infill** | 15-20% (Gyroid oder Honeycomb) |
-| **Top/Bottom Layers** | 4-5 |
-| **Support** | **Nicht benötigt** (beide Teile drucken flach auf dem Bett) |
-| **Brim** | Empfohlen (5mm) für bessere Haftung |
-| **Material** | ~80-120g pro Teil |
+**Wandteil und Außenteil (PLA/PETG):**
+- Material: PLA oder PETG
+- Schichthöhe: 0,2 mm
+- Wandstärke: 3 Wände (0,4 mm Düse → 1,2 mm)
+- Infill: 15-20 %
+- Support: **Nicht benötigt** (alle Überhänge < 45°)
+- Betthaftung: Brim empfohlen (große Grundfläche)
 
-### Druck-Orientierung
+**Dämmringe (TPU):**
+- Material: TPU (flexibel)
+- Schichthöhe: 0,2 mm
+- Wandstärke: 2 Wände
+- Infill: 100 % (für beste Dämmwirkung)
+- Support: Nicht benötigt
+- Hinweis: Langsam drucken (20-30 mm/s)
 
-#### Wandteil
+### Montage
 
-```
-        ╔═══════════════════╗
-        ║   Zylinder 1,3    ║  ← nach oben
-        ║   (untersch. hoch)║
-        ║                   ║
-        ╠═══════════════════╣
-        ║  Hintere Wand     ║  ← auf dem Druckbett
-        ║  (flach, 3mm)     ║
-        ╚═══════════════════╝
-```
+1. **Wandteil montieren**: Wandteil mit der Bodenplatte zur Wand auf das Rohr stecken (Rohr durch das 130-mm-Loch)
+2. **Dämmung 2 einlegen**: Dämmring 2 auf die Bodenplatte legen (zwischen Z1 und Z3, über die Podeste gestülpt)
+3. **Magnete auf Podeste kleben**: 3 Magnete auf die Podeste kleben
+4. **Magnete in Säulen kleben**: 3 Magnete auf die Unterseite der Säulen kleben (Außenteil)
+5. **Dämmung 1 einlegen**: Dämmring 1 in das Außenteil legen (auf die Vorderwand, innerhalb von Z2)
+6. **Außenteil aufsetzen**: Außenteil auf das Wandteil setzen — die Magnete rasten ein und halten alles zusammen
 
-- **Druckbett:** Die flache Rückseite liegt auf dem Bett
-- **Zylinder** zeigen nach oben → kein Support nötig
-- Z1 ist die niedrigste Wand (zylinder_mindest_hoehe), Z3 ist höher
+## Dateien
 
-#### Außenteil
-
-```
-        ╔═══════════════════╗
-        ║  Vordere Wand     ║  ← auf dem Druckbett
-        ║  (flach, 3mm)     ║
-        ╠═══════════════════╣
-        ║   Zylinder 2      ║  ← nach oben
-        ║                   ║
-        ╚═══════════════════╝
-```
-
-- **Druckbett:** Die flache Vorderseite liegt auf dem Bett
-- **Zylinder** zeigen nach oben → kein Support nötig
-
-
-### STL-Export
-
-`export.bat` doppelklicken — exportiert alle 4 STLs auf einmal:
-
-| # | Exportiert aus | STL-Datei |
-|---|---------------|-----------|
-| 1 | `export_wandteil.scad` | `BadLuftungSchalldaempfer_wandteil.stl` |
-| 2 | `export_aussenteil.scad` | `BadLuftungSchalldaempfer_aussenteil.stl` |
-| 3 | `export_daemmung_1.scad` | `BadLuftungSchalldaempfer_daemmung_1.stl` |
-| 4 | `export_daemmung_2.scad` | `BadLuftungSchalldaempfer_daemmung_2.stl` |
-
-
-### Nachbearbeitung
-
-1. **Stützstrukturen entfernen** (falls verwendet)
-2. **Grat entfernen** - besonders an den Zylinder-Endkanten
-3. **Passprobe:** Außenteil auf Wandteil stecken → sollte leichtgängig sein aber kein Spiel haben
-4. **Optional:** Kanten mit Schleifpapier (400er) brechen für bessere Optik
-
-
----
+| Datei | Beschreibung |
+|-------|-------------|
+| `BadLuftungSchalldaempfer.scad` | Haupt-SCAD-Datei mit allen Modulen |
+| `render.scad` | Render-Datei für Vorschau/Export |
+| `export.bat` | Batch-Skript zum Export aller STLs |
+| `README.md` | Diese Datei |
 
 ## Abhängigkeiten
 
-Dieses Projekt verwendet **BOSL2** (The Belfry OpenScad Library v2) für die Abrundungen und Fillets.
-
-### Installation
-
-BOSL2 muss im OpenSCAD-Bibliotheksverzeichnis installiert sein:
-
-```bash
-# Windows: C:\Users\<Benutzer>\Documents\OpenSCAD\libraries\BOSL2
-git clone https://github.com/BelfrySCAD/BOSL2.git
-```
-
-Oder über den OpenSCAD Library Manager installieren.
-
-### Verwendete BOSL2-Module
-
-| Modul | Verwendung |
-|-------|-----------|
-| `round_corners()` | Gezielte Eckrundungen im 2D-Profil für `rotate_extrude` |
-
-Die Abrundungen werden nicht mit `cyl()` oder `tube()` realisiert, sondern mit `round_corners()` auf dem 2D-Profil vor der `rotate_extrude`. Dies erlaubt **gezielte Rundungen einzelner Ecken** — z.B. nur die freien Enden der Zylinderwände (beide Kanten: innen + außen), während die angeschlossenen Enden scharf bleiben.
-
----
-
-## SCAD-Parameter
-
-Alle relevanten Parameter können in `BadLuftungSchalldaempfer.scad` angepasst werden:
-
-
-| Variable | Standard | Beschreibung |
-|----------|----------|-------------|
-| `rohr_durchmesser` | 100 | Lüftungsrohr-Innendurchmesser (mm) |
-| `loch_durchmesser` | 130 | Wandloch-Durchmesser (mm) |
-| `loch_mitte_x` | 105 | Lochmittelpunkt → Ecke (mm) |
-| `wand_abstand_ecke` | 10 | Min. Abstand zur Eckwand (mm) |
-| `wand_dicke` | 3.0 | Zylinder-Wandstärke (mm) |
-| `boden_dicke` | 3.0 | Vordere/hintere Wandstärke (mm) |
-| `zylinder_mindest_hoehe` | 30.0 | Mindesthöhe der niedrigsten Zylinderwand (Z1) (mm) |
-| `daemmung_dicke` | 6.0 | TPU-Dämmring (mm) |
-
-| `magnet_durchmesser` | 6.0 | Neodym-Magnet Durchmesser (mm) |
-| `magnet_dicke` | 2.0 | Neodym-Magnet Dicke (mm) |
-| `magnet_anzahl` | 3 | Anzahl Magnete (3-Punkt = kein Wackeln) |
-| `radius_aussen` | 5.0 | Äußere Kanten-Abrundung (mm) |
-| `radius_zylinder` | 2.0 | Zylinder-Endkanten Abrundung (mm) |
-
-
-### Parameter anpassen
-
-Wenn deine Einbausituation abweicht:
-
-1. **Anderes Rohrmaß:** `rohr_durchmesser` anpassen
-2. **Anderer Eckabstand:** `loch_mitte_x` und ggf. `wand_abstand_ecke` anpassen
-3. **Dünnere/dickere Dämmung:** `daemmung_dicke` anpassen (die Spaltbreiten passen sich automatisch an)
-4. **Versatz:** `versatz_2`, `versatz_3` werden automatisch proportional zu den Zylinder-Radien berechnet. Die Spaltbreiten bleiben dabei optimal (keine Skalierung). Jeder Zylinder wird proportional von der Ecke weg verschoben.
-
----
-
-## Materialliste
-
-| Material | Menge | Bezugsquelle | Preis (ca.) |
-|----------|-------|-------------|-------------|
-| PLA-Filament (1.75mm) | ~200g | Beliebig | ~5-8 € |
-| TPU-Filament (1.75mm) | ~20g | Beliebig | ~2-3 € |
-| Neodym-Magnete Ø6×2mm | 6 Stk. | Amazon, eBay | ~3-5 € |
-| Tesa Powerstrips | 2-4 Stk. | Baumarkt | ~3-5 € |
-| Sekundenkleber | 1 Tube | Beliebig | ~2-3 € |
-
-**Gesamtkosten:** ca. 15-24 € (ohne Drucker)
-
-
----
-
-## Wartung
-
-### Regelmäßige Reinigung (alle 6-12 Monate)
-
-1. Außenteil vorsichtig abziehen (Magnete lösen)
-2. TPU-Dämmringe auf Verschmutzung prüfen
-3. Staub von den Dämmringen mit Staubsauger (Bürstenaufsatz) entfernen
-4. Innenraum des Wandteils und Rohröffnung reinigen
-5. Außenteil wieder aufsetzen (rastet durch Magnete ein)
-
-### Austausch der TPU-Dämmringe
-
-Bei starker Verschmutzung oder nachlassender Dämpfungswirkung:
-
-1. Alte Dämmringe abziehen
-2. Klebereste entfernen (Isopropanol)
-3. Neue Dämmringe aus TPU drucken (export_daemmung_1/2.scad)
-4. Einkleben (siehe Montage-Schritt 2)
-5. Außenteil wieder montieren
-
-
-### Magnete prüfen
-
-Falls die Haltekraft nachlässt:
-- Korrosion prüfen (bei Beschädigung der Nickel-Beschichtung)
-- Ggf. Magnete austauschen (aushebeln und neue einkleben)
-
----
+- [BOSL2](https://github.com/BelfrySCAD/BOSL2) — Bell's OpenSCAD Library v2 (für `round_corners()`)
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz veröffentlicht. Siehe `LICENSE` im Repository.
-
----
-
-## Siehe auch
-
-- [tablet-wall-holder](../tablet-wall-holder/README.md) — Vorheriges SCAD-Projekt mit ähnlichem Aufbau
+Siehe `LICENSE` im Hauptverzeichnis.
