@@ -152,19 +152,21 @@ Aus den Strömungsspalten und der Labyrinth-Überlappung werden alle weiteren Ma
 
 ### Druck-Einstellungen
 
-**Wandteil und Außenteil (PLA/PETG):**
-- Material: PLA oder PETG
+**Wandteil und Außenteil (PETG):**
+- Material: **PETG** (PLA hallt stärker — PETG ist weicher und dämpft besser)
 - Schichthöhe: 0,2 mm
 - Wandstärke: 3 Wände (0,4 mm Düse → 1,2 mm)
-- Infill: 15-20 %
+- Infill: **40-50 %, Gitterförmig (Grid)** — mehr Masse = weniger Vibration, Gitter-Struktur dämpft Eigenschwingungen
 - Support: **Nicht benötigt** (alle Überhänge < 45°)
-- Betthaftung: Brim empfohlen (große Grundfläche)
+- Betthaftung: **Nicht nötig** (PETG warpt kaum) — bei 200 mm Durchmesser ggf. Brim falls Ecken sich lösen
 
 **Dämmringe (TPU):**
 - Material: TPU (flexibel)
 - Schichthöhe: 0,2 mm
-- Wandstärke: 2 Wände
-- Infill: 100 % (für beste Dämmwirkung)
+- **Untere Wand: 1-2 Schichten (0,2-0,4 mm)** — für ausreichend Klebefläche auf dem Kunststoffteil
+- **Obere Wand: 0 (keine Deckfläche)** — die offene Wabenstruktur fängt den Schall von oben
+- Wandstärke: 2 Wände (nur Seitenwände)
+- Infill: **50 %, Wabenförmig (Honeycomb/Gyroid)** — die Waben wirken als Resonanzfallen, Schallwellen verlieren sich in den Kammern
 - Support: Nicht benötigt
 - Hinweis: Langsam drucken (20-30 mm/s)
 
