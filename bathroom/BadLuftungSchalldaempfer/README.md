@@ -131,7 +131,7 @@ Aus den Strömungsspalten und der Labyrinth-Überlappung werden alle weiteren Ma
 | `wand_dicke` | 3,0 mm | Zylinder-Wandstärke |
 | `boden_dicke` | 3,0 mm | Vordere/hintere Wandstärke |
 | `labyrinth_ueberlappung` | 20,0 mm | Überlappung der Zylinder im Labyrinth |
-| `daemmung_dicke` | 6,0 mm | TPU-Dämmring-Dicke |
+| `daemmung_dicke` | 15,0 mm | TPU-Dämmring-Dicke (erhöht von 6mm für bessere Schalldämmung) |
 | `magnet_durchmesser` | 6,0 mm | Neodym-Magnet Durchmesser |
 | `magnet_dicke` | 2,0 mm | Neodym-Magnet Dicke |
 | `$fa_sichtbar` | 2 | Minimaler Winkel für sichtbare Außenkanten (Z3, Bodenplatte) |
@@ -163,10 +163,10 @@ Aus den Strömungsspalten und der Labyrinth-Überlappung werden alle weiteren Ma
 **Dämmringe (TPU):**
 - Material: TPU (flexibel)
 - Schichthöhe: 0,2 mm
-- **Untere Wand: 1-2 Schichten (0,2-0,4 mm)** — für ausreichend Klebefläche auf dem Kunststoffteil
+- **Untere Wand: 25 Bottom-Layer (5 mm)** — mehr Masse zur Absorption tiefer Frequenzen
 - **Obere Wand: 0 (keine Deckfläche)** — die offene Wabenstruktur fängt den Schall von oben
 - Wandstärke: 2 Wände (nur Seitenwände)
-- Infill: **50 %, Wabenförmig (Honeycomb/Gyroid)** — die Waben wirken als Resonanzfallen, Schallwellen verlieren sich in den Kammern
+- Infill: **30 %, Gyroid** — die Gyroid-Struktur wirkt als Resonanzfalle, Schallwellen verlieren sich in den Kammern
 - Support: Nicht benötigt
 - Hinweis: Langsam drucken (20-30 mm/s)
 

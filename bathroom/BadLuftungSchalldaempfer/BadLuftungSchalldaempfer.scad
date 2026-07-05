@@ -25,7 +25,7 @@ boden_dicke        = 3.0;   // Vordere/hintere Wandstärke (mm)
 labyrinth_ueberlappung = 20.0;  // Überlappung der Zylinder im Labyrinth (mm)
 
 // --- Dämmmaterial ---
-daemmung_dicke     = 6.0;   // TPU-Dämmring (mm)
+daemmung_dicke     = 15.0;  // TPU-Dämmring (mm) — erhöht von 6mm für bessere Schalldämmung
 
 // --- Magnete (Befestigung Außenteil) ---
 magnet_durchmesser = 6.0;   // Neodym-Magnet Durchmesser (mm)
