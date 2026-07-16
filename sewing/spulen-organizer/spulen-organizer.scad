@@ -25,8 +25,8 @@ spulen_hoehe = 11;              // [8:1:20]
 /* [Organizer-Maße] */
 stift_durchmesser = spulen_loch_durchmesser - 1.0;
   // Stiftdurchmesser (1 mm Spiel für leichtes Auf-/Abstecken)
-stift_hoehe = spulen_hoehe + 8;
-  // Stifthöhe (8 mm Überstand zum leichteren Greifen)
+stift_hoehe = 50;
+  // Stifthöhe (50 mm)
 stift_abstand = 25;
   // Mittenabstand Stifte (25 mm)
 

@@ -29,6 +29,7 @@ Spulengrößen, Rasterdimensionen und Designs.
 | `rand` | 12.5 mm | Rand um äußere Stifte |
 | `platten_dicke` | 4 mm | Dicke der Bodenplatte |
 | `eckradius` | 5 mm | Radius der Eckverrundung |
+| `stift_hoehe` | 50 mm | Höhe der Stifte |
 | `stift_rundung_oben` | 2 mm | Radius Stiftspitze (abgerundet) |
 | `stift_rundung_unten` | 1 mm | Radius Stiftfuß (Übergang) |
 | `profil_aussparung` | true | Fingerausschnitt an Vorderkante |
