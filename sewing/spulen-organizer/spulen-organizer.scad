@@ -27,15 +27,15 @@ stift_durchmesser = spulen_loch_durchmesser - 1.0;
   // Stiftdurchmesser (1 mm Spiel für leichtes Auf-/Abstecken)
 stift_hoehe = spulen_hoehe + 8;
   // Stifthöhe (8 mm Überstand zum leichteren Greifen)
-stift_abstand = spulen_aussendurchmesser + 6;
-  // Mittenabstand Stifte (6 mm Luft zwischen Spulen)
+stift_abstand = 25;
+  // Mittenabstand Stifte (25 mm)
 
-reihen = 4;    // [1:1:10]
+reihen = 10;   // [1:1:15]
 spalten = 5;   // [1:1:10]
 
 platten_dicke = 4;   // [2:1:8]
   // Dicke der Bodenplatte
-rand = 3;            // [1:1:8]
+rand = 12.5;         // [1:1:20]
   // Abstand von äußeren Stiften zum Plattenrand
 eckradius = 5;       // [1:1:10]
   // Radius der Kantenverrundung
