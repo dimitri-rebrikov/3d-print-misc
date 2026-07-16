@@ -30,7 +30,7 @@ stift_hoehe = 50;
 stift_abstand = 25;
   // Mittenabstand Stifte (25 mm)
 
-reihen = 10;   // [1:1:15]
+reihen = 11;   // [1:1:15]
 spalten = 5;   // [1:1:10]
 
 platten_dicke = 4;   // [2:1:8]

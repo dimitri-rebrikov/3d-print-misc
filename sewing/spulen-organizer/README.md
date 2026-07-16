@@ -23,7 +23,7 @@ Spulengrößen, Rasterdimensionen und Designs.
 | `spulen_loch_durchmesser` | 6.5 mm | Innendurchmesser Spulenkern (Class 15) |
 | `spulen_aussendurchmesser` | 21 mm | Außendurchmesser Spule |
 | `spulen_hoehe` | 11 mm | Höhe der Spule |
-| `reihen` | 10 | Reihen in Y-Richtung |
+| `reihen` | 11 | Reihen in Y-Richtung (→ 275 mm) |
 | `spalten` | 5 | Spalten in X-Richtung |
 | `stift_abstand` | 25 mm | Mittenabstand der Stifte |
 | `rand` | 12.5 mm | Rand um äußere Stifte |
@@ -41,7 +41,7 @@ Spulengrößen, Rasterdimensionen und Designs.
 |-------|-------------|
 | `spulen-organizer.scad` | Hauptmodell (alle Parameter + Module) |
 | `render.scad` | Render-Skript (`openscad -o spulen-organizer.stl render.scad`) |
-| `spulen-organizer.stl` | Exportiertes STL (10×5, Class 15) |
+| `spulen-organizer.stl` | Exportiertes STL (11×5 = 55 Stifte, 125×275 mm) |
 | `README.md` | Diese Datei |
 
 ## Abhängigkeiten
