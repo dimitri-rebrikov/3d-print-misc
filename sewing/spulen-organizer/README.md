@@ -8,32 +8,29 @@ Spulengrößen, Rasterdimensionen und Designs.
 
 ## Eigenschaften
 
-- **Parametrisch:** Spulengröße, Stiftanzahl, Abstände, Verrundungen — alles
-  über den OpenSCAD-Customizer einstellbar
-- **BOSL2:** Nutzt die Belfry OpenSCAD Library v2 für saubere Verrundungen
+- **4 Werte steuern alles:** Spulendurchmesser, Stifthöhe, max. Breite, max. Tiefe
+  — Raster (Reihen × Spalten) wird automatisch berechnet
+- **BOSL2:** Saubere Verrundungen mit `cuboid(rounding=)`, `grid_copies()`, `cyl(rounding=)`
 - **Druckfreundlich:** Flache Unterseite (scharfe Kanten für Betthaftung),
-  abgerundete Ecken oben, optionaler halbrunder Fingerausschnitt
-- **Stift-Sockel:** Kleiner zylindrischer Sockel am Fuß jedes Stifts hebt die
-  Spule von der Platte ab — vermeidet Kratzer und erleichtert das Greifen
+  abgerundete Ecken oben, optionaler Fingerausschnitt
+- **Stift-Sockel:** Kleines Plateau unter jedem Stift hebt die
+  Spule von der Platte ab — vermeidet Kratzer
 
 ## Parameter (Customizer)
 
 | Parameter | Default | Beschreibung |
 |-----------|---------|-------------|
-| `spulen_loch_durchmesser` | 6.5 mm | Innendurchmesser Spulenkern (Class 15) |
-| `spulen_aussendurchmesser` | 21 mm | Außendurchmesser Spule |
-| `spulen_hoehe` | 11 mm | Höhe der Spule |
-| `reihen` | 11 | Reihen in Y-Richtung (→ 275 mm) |
-| `spalten` | 5 | Spalten in X-Richtung |
-| `stift_abstand` | 25 mm | Mittenabstand der Stifte |
-| `rand` | 12.5 mm | Rand um äußere Stifte |
+| `spulen_durchmesser` | 21 mm | Außendurchmesser Spule → bestimmt Stiftabstand |
+| `stift_hoehe` | 50 mm | Höhe der Stifte |
+| `max_breite` | 140 mm | Gewünschte max. Plattenbreite → Spaltenzahl |
+| `max_tiefe` | 290 mm | Gewünschte max. Plattentiefe → Reihenzahl |
+| `spulen_loch_durchmesser` | 6.5 mm | Innendurchmesser Spulenkern |
 | `platten_dicke` | 4 mm | Dicke der Bodenplatte |
 | `eckradius` | 5 mm | Radius der Eckverrundung |
-| `stift_hoehe` | 50 mm | Höhe der Stifte |
-| `stift_rundung_oben` | 2 mm | Radius Stiftspitze (abgerundet) |
 | `stift_rundung_unten` | 1 mm | Radius Stiftfuß (Übergang) |
-| `profil_aussparung` | true | Fingerausschnitt an Vorderkante |
-| `$fn` | 32 | Auflösung (höher = glatter, langsamer) |
+| `stift_rundung_oben` | 2 mm | Radius Stiftspitze |
+| `fingerausschnitt` | true | Fingerausschnitt an Vorderkante |
+| `$fn` | 32 | Auflösung
 
 ## Dateien
 
@@ -41,7 +38,7 @@ Spulengrößen, Rasterdimensionen und Designs.
 |-------|-------------|
 | `spulen-organizer.scad` | Hauptmodell (alle Parameter + Module) |
 | `render.scad` | Render-Skript (`openscad -o spulen-organizer.stl render.scad`) |
-| `spulen-organizer.stl` | Exportiertes STL (11×5 = 55 Stifte, 125×275 mm) |
+| `spulen-organizer.stl` | Exportiertes STL (5×10 = 50 Stifte, 135×270 mm) |
 | `README.md` | Diese Datei |
 
 ## Abhängigkeiten
