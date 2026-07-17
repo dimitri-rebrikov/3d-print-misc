@@ -41,9 +41,10 @@ spulen_loch_durchmesser = 6.5;  // [4:0.5:12]
   // Innendurchmesser Spulenkern → Stiftdurchmesser = Loch - 1mm
 
 /* [Design] */
-platten_dicke = 4;          // [2:1:8]
+platten_dicke = 2.5;        // [1.5:0.5:5]
 eckradius = 5;              // [1:1:10]
-stift_rundung_unten = 1;    // [0:0.5:3]
+konus_rundung = 2;          // [0.5:0.5:3]
+  // Radius der Verrundung am Konusfuß (Übergang zur Platte)
 stift_rundung_oben = 2;     // [0:0.5:3]
 $fn = 32;
 fingerausschnitt = true;    // [true, false]
@@ -63,9 +64,9 @@ reihen  = floor(max_tiefe  / stift_abstand);
 // Stiftdurchmesser aus Spulenloch (1 mm Spiel)
 stift_durchmesser = spulen_loch_durchmesser - 1.0;
 
-// Sockel unter jedem Stift (hebt Spule von Platte ab)
-sockel_durchmesser = stift_durchmesser + 5;
-sockel_hoehe = 1.0;
+// Konus an der Stiftbasis für stabileren Übergang
+konus_durchmesser = stift_durchmesser + 4;  // ≈ 9,5 mm
+konus_hoehe = 4;
 
 // Plattenmaße (vereinfacht: rand = stift_abstand/2 → breite = spalten * abstand)
 breite = spalten * stift_abstand;
@@ -98,27 +99,26 @@ module fingerausschnitt() {
     }
 }
 
-module stift_sockel() {
+module stift() {
+    // Konischer Fuß für stabilen Übergang zur Platte
     cyl(
-        d = sockel_durchmesser,
-        l = sockel_hoehe,
-        rounding1 = min(stift_rundung_unten, sockel_hoehe),
+        d1 = konus_durchmesser,
+        d2 = stift_durchmesser,
+        l = konus_hoehe,
+        rounding1 = konus_rundung,
         rounding2 = 0,
         anchor = BOTTOM
     );
-}
-
-module stift() {
-    up(sockel_hoehe) {
+    // Gerader Stift
+    up(konus_hoehe) {
         cyl(
             d = stift_durchmesser,
-            l = stift_hoehe - sockel_hoehe,
-            rounding1 = stift_rundung_unten,
+            l = stift_hoehe - konus_hoehe,
+            rounding1 = 0,
             rounding2 = stift_rundung_oben,
             anchor = BOTTOM
         );
     }
-    stift_sockel();
 }
 
 module stifte() {
@@ -143,5 +143,5 @@ spulen_organizer();
 // ─── Info-Ausgabe ─────────────────────────────────────────────────────────────
 
 echo(str("Stifte: ", spalten, " × ", reihen, " = ", spalten * reihen));
-echo(str("Platte: ", breite, " × ", tiefe, " mm"));
+echo(str("Platte: ", breite, " × ", tiefe, " × ", platten_dicke, " mm"));
 echo(str("Stiftabstand: ", stift_abstand, " mm, Rand: ", rand, " mm"));
