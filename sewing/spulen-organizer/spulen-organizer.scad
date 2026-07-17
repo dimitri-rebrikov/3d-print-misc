@@ -95,29 +95,41 @@ module fingerausschnitt() {
     }
 }
 
-module stift_base_fillet() {
-    f = stift_fillet;
-    r = stift_durchmesser / 2;
-    rotate_extrude(convexity = 4)
-        intersection() {
-            // Nur der Bereich AUSSERHALB des Stifts (x >= r)
-            translate([r, 0])
-                square([f + 0.1, f + 0.1]);
-            // Kreiszentrum am äußeren Fillet-Eck (r+f, f)
-            translate([r + f - 0.05, f])
-                circle(f, $fn = max(12, $fn / 2));
-        }
-}
+// ─── Stift als Rotationskörper ────────────────────────────────────────────────
+// Der gesamte Stift (Fillet + Schaft + Spitzenrundung) wird als EIN
+// rotate_extrude() einer 2D-Polygon-Kontur erzeugt → keine überlappenden
+// Flächen, garantiert manifold.
 
-module stift_top_rounding() {
-    // (Deaktiviert — war geometrisch falsch, wird bei Bedarf neu gemacht)
-}
+function _arc(cx, cy, r, a0, a1, n = 16) = [
+    for (i = [0:n])
+        let (a = a0 + (a1 - a0) * i / n)
+        [cx + r * cos(a), cy + r * sin(a)]
+];
 
 module stift() {
-    union() {
-        cylinder(d = stift_durchmesser, h = stift_hoehe);
-        if (stift_fillet > 0) stift_base_fillet();
-    }
+    r = stift_durchmesser / 2;
+    f = stift_fillet;
+    t = stift_rundung_oben;
+
+    // Basisfillet: Viertelkreis von (r+f, 0) → (r, f)
+    // Zentrum: (r+f, f), Winkel 270° → 180°
+    fillet_bogen = _arc(r + f, f, f, 270, 180, 16);
+
+    // Spitzenrundung: Viertelkreis von (r, h-t) → (0, h+(r-t))
+    // Zentrum: (0, h-t), Winkel 0° → 90°
+    h = stift_hoehe;
+    top_bogen = _arc(0, h - t, r, 0, 90, 16);
+
+    kontur = concat(
+        [[0, 0]],                  // Plattenmitte
+        [[r + f, 0]],              // Fillet-Außenkante auf Platte
+        fillet_bogen,              // Fillet-Bogen → (r, f)
+        [[r, h - t]],              // Stiftwand bis Spitzenrundung
+        top_bogen,                 // Spitzenrundung → (0, h+(r-t-wird-gekappt)]
+        [[0, 0]]                   // Rücksprung zur Plattenmitte (schließt Polygon)
+    );
+
+    rotate_extrude() polygon(kontur);
 }
 
 module stifte() {
