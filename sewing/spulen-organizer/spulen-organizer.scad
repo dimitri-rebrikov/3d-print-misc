@@ -100,32 +100,23 @@ module stift_base_fillet() {
     r = stift_durchmesser / 2;
     rotate_extrude(convexity = 4)
         intersection() {
-            square([r + f + 0.1, f + 0.1]);
-            // Zentrum leicht nach innen verschoben → Überlapp mit Zylinder
+            // Nur der Bereich AUSSERHALB des Stifts (x >= r)
+            translate([r, 0])
+                square([f + 0.1, f + 0.1]);
+            // Kreiszentrum am äußeren Fillet-Eck (r+f, f)
             translate([r + f - 0.05, f])
                 circle(f, $fn = max(12, $fn / 2));
         }
 }
 
 module stift_top_rounding() {
-    t = stift_rundung_oben;
-    r = stift_durchmesser / 2;
-    up(stift_hoehe - t - 0.1) {
-        rotate_extrude(convexity = 4)
-            intersection() {
-                square([r + 0.1, t + 0.1]);
-                // Zentrum leicht nach außen → Überlapp mit Zylinder
-                translate([r - t - 0.05, t])
-                    circle(t, $fn = max(12, $fn / 2));
-            }
-    }
+    // (Deaktiviert — war geometrisch falsch, wird bei Bedarf neu gemacht)
 }
 
 module stift() {
     union() {
         cylinder(d = stift_durchmesser, h = stift_hoehe);
-        if (stift_fillet > 0)          stift_base_fillet();
-        if (stift_rundung_oben > 0)     stift_top_rounding();
+        if (stift_fillet > 0) stift_base_fillet();
     }
 }
 
