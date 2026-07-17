@@ -17,16 +17,16 @@ include <BOSL2/std.scad>
 // Diese vier Parameter steuern das gesamte Modell.
 
 /* [Spule] */
-spulen_durchmesser = 21;    // [10:0.5:40]
-  // Außendurchmesser der Nähspule (Class 15 ≈ 21 mm)
+spulen_durchmesser = 30;    // [10:0.5:40]
+  // Außendurchmesser der Nähspule
   // → bestimmt den Stiftabstand
 
 /* [Stifte] */
-stift_hoehe = 50;           // [20:5:80]
+stift_hoehe = 80;           // [20:5:100]
   // Höhe der Stifte (ragen über die Spulen hinaus)
 
 /* [Platte] */
-max_breite = 140;           // [50:5:350]
+max_breite = 190;           // [50:5:350]
   // Gewünschte maximale Plattenbreite
   // → die Anzahl Spalten wird automatisch berechnet
 
@@ -43,8 +43,8 @@ spulen_loch_durchmesser = 6.5;  // [4:0.5:12]
 /* [Design] */
 platten_dicke = 2.5;        // [1.5:0.5:5]
 eckradius = 5;              // [1:1:10]
-stift_fillet = 2.5;         // [0.5:0.5:3]
-  // Fillet an der Stiftbasis (max = Stiftdurchmesser/2)
+stift_fillet = 4;           // [1:0.5:6]
+  // Radius des Basisfillets (breiter + höher = stabiler)
 stift_rundung_oben = 2;     // [0:0.5:3]
 $fn = 32;
 fingerausschnitt = true;    // [true, false]
