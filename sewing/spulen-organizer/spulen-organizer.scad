@@ -17,16 +17,16 @@ include <BOSL2/std.scad>
 // Diese vier Parameter steuern das gesamte Modell.
 
 /* [Spule] */
-spulen_durchmesser = 21;    // [10:0.5:40]
-  // Außendurchmesser der Nähspule (Class 15 ≈ 21 mm)
+spulen_durchmesser = 30;    // [10:0.5:40]
+  // Außendurchmesser der Nähspule
   // → bestimmt den Stiftabstand
 
 /* [Stifte] */
-stift_hoehe = 50;           // [20:5:80]
+stift_hoehe = 80;           // [20:5:100]
   // Höhe der Stifte (ragen über die Spulen hinaus)
 
 /* [Platte] */
-max_breite = 140;           // [50:5:350]
+max_breite = 190;           // [50:5:350]
   // Gewünschte maximale Plattenbreite
   // → die Anzahl Spalten wird automatisch berechnet
 
@@ -41,9 +41,10 @@ spulen_loch_durchmesser = 6.5;  // [4:0.5:12]
   // Innendurchmesser Spulenkern → Stiftdurchmesser = Loch - 1mm
 
 /* [Design] */
-platten_dicke = 4;          // [2:1:8]
+platten_dicke = 2.5;        // [1.5:0.5:5]
 eckradius = 5;              // [1:1:10]
-stift_rundung_unten = 1;    // [0:0.5:3]
+stift_fillet = 4;           // [1:0.5:6]
+  // Radius des Basisfillets (breiter + höher = stabiler)
 stift_rundung_oben = 2;     // [0:0.5:3]
 $fn = 32;
 fingerausschnitt = true;    // [true, false]
@@ -62,10 +63,6 @@ reihen  = floor(max_tiefe  / stift_abstand);
 
 // Stiftdurchmesser aus Spulenloch (1 mm Spiel)
 stift_durchmesser = spulen_loch_durchmesser - 1.0;
-
-// Sockel unter jedem Stift (hebt Spule von Platte ab)
-sockel_durchmesser = stift_durchmesser + 5;
-sockel_hoehe = 1.0;
 
 // Plattenmaße (vereinfacht: rand = stift_abstand/2 → breite = spalten * abstand)
 breite = spalten * stift_abstand;
@@ -98,27 +95,41 @@ module fingerausschnitt() {
     }
 }
 
-module stift_sockel() {
-    cyl(
-        d = sockel_durchmesser,
-        l = sockel_hoehe,
-        rounding1 = min(stift_rundung_unten, sockel_hoehe),
-        rounding2 = 0,
-        anchor = BOTTOM
-    );
-}
+// ─── Stift als Rotationskörper ────────────────────────────────────────────────
+// Der gesamte Stift (Fillet + Schaft + Spitzenrundung) wird als EIN
+// rotate_extrude() einer 2D-Polygon-Kontur erzeugt → keine überlappenden
+// Flächen, garantiert manifold.
+
+function _arc(cx, cy, r, a0, a1, n = 16) = [
+    for (i = [0:n])
+        let (a = a0 + (a1 - a0) * i / n)
+        [cx + r * cos(a), cy + r * sin(a)]
+];
 
 module stift() {
-    up(sockel_hoehe) {
-        cyl(
-            d = stift_durchmesser,
-            l = stift_hoehe - sockel_hoehe,
-            rounding1 = stift_rundung_unten,
-            rounding2 = stift_rundung_oben,
-            anchor = BOTTOM
-        );
-    }
-    stift_sockel();
+    r = stift_durchmesser / 2;
+    f = stift_fillet;
+    t = stift_rundung_oben;
+
+    // Basisfillet: Viertelkreis von (r+f, 0) → (r, f)
+    // Zentrum: (r+f, f), Winkel 270° → 180°
+    fillet_bogen = _arc(r + f, f, f, 270, 180, 16);
+
+    // Spitzenrundung: Viertelkreis von (r, h-t) → (0, h+(r-t))
+    // Zentrum: (0, h-t), Winkel 0° → 90°
+    h = stift_hoehe;
+    top_bogen = _arc(0, h - t, r, 0, 90, 16);
+
+    kontur = concat(
+        [[0, 0]],                  // Plattenmitte
+        [[r + f, 0]],              // Fillet-Außenkante auf Platte
+        fillet_bogen,              // Fillet-Bogen → (r, f)
+        [[r, h - t]],              // Stiftwand bis Spitzenrundung
+        top_bogen,                 // Spitzenrundung → (0, h+(r-t-wird-gekappt)]
+        [[0, 0]]                   // Rücksprung zur Plattenmitte (schließt Polygon)
+    );
+
+    rotate_extrude() polygon(kontur);
 }
 
 module stifte() {
@@ -143,5 +154,5 @@ spulen_organizer();
 // ─── Info-Ausgabe ─────────────────────────────────────────────────────────────
 
 echo(str("Stifte: ", spalten, " × ", reihen, " = ", spalten * reihen));
-echo(str("Platte: ", breite, " × ", tiefe, " mm"));
+echo(str("Platte: ", breite, " × ", tiefe, " × ", platten_dicke, " mm"));
 echo(str("Stiftabstand: ", stift_abstand, " mm, Rand: ", rand, " mm"));
