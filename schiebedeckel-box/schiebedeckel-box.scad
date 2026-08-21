@@ -47,7 +47,8 @@ schlitz_z     = schlitz_unten + schlitz_hoehe / 2;
 
 deckel_breite = innen_breite + 2 * nut_tiefe - spiel;
 deckel_x0     = -innen_laenge / 2 + spiel / 2;  // Deckel mit Luft zur Rückwand
-deckel_laenge = innen_laenge - spiel;           // genauso groß wie die Öffnung, keine Lasche
+// Platte reicht bis unter die Zugkante (inkl. Überstand in den Schlitz)
+deckel_laenge = innen_laenge - spiel + kanten_ueberstand;
 radius        = wand;                           // Eckenradius außen = Wandstärke
 
 // Einschubschlitz: schneidet die Vorderwand KOMPLETT (0.5mm über beide Kanten)
@@ -57,6 +58,21 @@ einschub_b = aussen_laenge / 2 + 0.5 - (innen_laenge / 2 - 0.5);   // = wand + 1
 
 // Diese Datei definiert nur Parameter + Module.
 // Das Rendering übernehmen die Render-Helper (render.scad, kiste-render.scad, deckel-render.scad).
+
+// Einschubschlitz durch die Vorderwand:
+//  - mittlerer Kanal (y ±innen_breite/2, volle Schlitzhöhe): für Plattenmitte + Zugkante
+//  - seitliche Kanäle (nur auf Nuthöhe): für den Plattenrand in den Nuten
+// Die Längswand-Stege über den Nuten bleiben an der Einschubseite stehen
+// (kein tiefer Ausschnitt bis zur Oberkante).
+module einschub() {
+    union() {
+        translate([einschub_x, 0, schlitz_z])
+            cuboid([einschub_b, innen_breite, schlitz_hoehe], anchor = CENTER);
+        for (sy = [1, -1])
+            translate([einschub_x, sy * (innen_breite / 2 + nut_tiefe / 2), nut_z])
+                cuboid([einschub_b, nut_tiefe, nut_hoehe], anchor = CENTER);
+    }
+}
 
 module kiste() {
     difference() {
@@ -72,9 +88,8 @@ module kiste() {
             cuboid([innen_laenge + 1, nut_tiefe, nut_hoehe], anchor = CENTER);
         translate([0, -innen_breite / 2 - nut_tiefe / 2, nut_z])
             cuboid([innen_laenge + 1, nut_tiefe, nut_hoehe], anchor = CENTER);
-        // Einschubschlitz: durch die Vorderwand, MIT Steg von oben (begrenzende Kante)
-        translate([einschub_x, 0, schlitz_z])
-            cuboid([einschub_b, innen_breite + 2 * nut_tiefe + 0.6, schlitz_hoehe], anchor = CENTER);
+        // Einschubschlitz: mittlerer Kanal + seitliche Nut-Kanäle (Stege bleiben)
+        einschub();
     }
 }
 
@@ -86,12 +101,12 @@ module deckel() {
             cuboid([deckel_laenge, deckel_breite, deckel_dicke],
                    rounding = 2.5, edges = "Z", anchor = LEFT + BOTTOM);
             // Zugkante an der Vorderkante, nach oben — so hoch wie der Deckel.
-            // Ragt kanten_ueberstand über die Plattenkante hinaus -> sitzt im
-            // geschlossenen Zustand sichtbar im Schlitz und begrenzt ihn von oben
-            // (bündig mit den Wand-Oberkanten). Breite = Öffnungsbreite (keine
-            // Kollision mit den Längswänden). um verbund überlappen -> union sauber.
+            // Sitzt komplett auf der Platte (die bis hierhin reicht), füllt im
+            // geschlossenen Zustand den Schlitz und schließt bündig mit den
+            // Wand-Oberkanten ab. Breite = Öffnungsbreite (keine Kollision mit
+            // den Längswänden). um verbund überlappen -> union sauber.
             translate([deckel_laenge - kanten_dicke, 0, deckel_dicke - verbund])
-                cuboid([kanten_dicke + kanten_ueberstand, innen_breite - spiel, deckel_dicke + verbund],
+                cuboid([kanten_dicke, innen_breite - spiel, deckel_dicke + verbund],
                        rounding = 1, edges = "Z", anchor = LEFT + BOTTOM);
         }
     }
