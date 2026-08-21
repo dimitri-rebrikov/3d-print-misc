@@ -1,11 +1,12 @@
 // Schiebedeckel-Box (Domino-Stil): Kiste + Deckel, der seitlich in Führungsnuten gleitet
 // BOSL2: cuboid (rounding, edges, anchor), difference
 //
-// Konstruktion (klassischer Domino-Kasten):
-//  - Vorderwand voll hoch, Einschubschlitz MIT begrenzender Kante von oben (Steg)
-//  - Deckel genauso groß wie die Öffnung (keine Lasche), liegt versenkt in den Nuten
-//  - Zugkante auf dem Deckel (statt Griffmulde): nach oben, gleich hoch wie der Steg
-//  - Schlitz lässt Deckel + Zugkante durchfahren -> Deckel komplett abnehmbar
+// Konstruktion:
+//  - Wände ragen nur deckel_dicke über den Deckel (kein hoher Steg)
+//  - Einschubschlitz geht bis zur Oberkante: KEIN Wandbalken darüber (= keine
+//    Druck-Brücke); die Zugkante des Deckels begrenzt den Schlitz von oben und
+//    schließt im geschlossenen Zustand bündig mit den Wand-Oberkanten ab
+//  - Zugkante so hoch wie der Deckel (deckel_dicke), greifbar durch den Schlitz
 include <BOSL2/std.scad>
 $fn = 48;
 
@@ -14,10 +15,9 @@ innen_laenge = 170;      // Innenlänge (mm) — Domino Double-Six: 4 Steine à 
 innen_breite = 150;      // Innenbreite (mm) — 7 Steine à 20mm + Rand
 innen_hoehe  = 20;       // Stauraumhöhe UNTER dem Deckel (mm) — 2 Lagen à 7mm + Reserve
 wand         = 4;        // Wandstärke (mm)
-deckel_dicke = 4;        // Deckeldicke (mm)
+deckel_dicke = 4;        // Deckeldicke (mm) = Höhe der Zugkante = Wandüberstand
 nut_tiefe    = 2.5;      // Nuttiefe in die Längswand (mm) — muss < wand sein
 spiel        = 0.4;      // Spiel Deckel/Nut (mm)
-kantenhoehe  = 4;        // Zugkante auf dem Deckel = Steg-Höhe über dem Schlitz (mm)
 
 /* [Abgeleitet] */
 assert(nut_tiefe < wand, "nut_tiefe muss kleiner als wand sein!");
@@ -30,15 +30,16 @@ kanten_ueberstand = 2.4;                        // Kante ragt im geschlossenen Z
                                                 // in den Schlitz: sichtbar + von vorn greifbar
 
 // Vertikale Positionen (von unten nach oben):
-//   boden -> Stauraum (innen_hoehe) -> Deckel (deckel_dicke) -> Zugkante (kantenhoehe)
-//   -> Steg über dem Schlitz (kantenhoehe) -> Oberkante
+//   boden -> Stauraum (innen_hoehe) -> Deckel (deckel_dicke) -> Zugkante (deckel_dicke)
+//   -> spiel/2 Luft -> Oberkante (Wand über dem Deckel = deckel_dicke + spiel/2)
 deckel_unten  = boden + innen_hoehe;            // Deckel-Unterkante = Stauraum-Oberkante
 deckel_oben   = deckel_unten + deckel_dicke;    // Deckel-Oberseite
-kante_oben    = deckel_oben + kantenhoehe;      // Zugkante-Oberkante (bündig mit Steg-Unterkante)
+kante_oben    = deckel_oben + deckel_dicke;     // Zugkante so hoch wie der Deckel
+aussen_hoehe  = kante_oben + spiel / 2;         // Kante schließt fast bündig mit der Oberkante
 schlitz_unten = deckel_unten - spiel / 2;       // Schlitz lässt Deckel + Kante durch
-schlitz_oben  = kante_oben + spiel / 2;
-schlitz_hoehe = schlitz_oben - schlitz_unten;   // = deckel_dicke + kantenhoehe + spiel
-aussen_hoehe  = schlitz_oben + kantenhoehe;     // Steg = kantenhoehe über dem Schlitz
+schlitz_oben  = aussen_hoehe;                   // Schlitz bis zur Oberkante: KEIN Steg,
+                                                // keine Druck-Brücke über dem Einschub
+schlitz_hoehe = schlitz_oben - schlitz_unten;   // = 2*deckel_dicke + spiel
 nut_unten     = schlitz_unten;                  // Nut führt nur den Deckel (nicht die Kante)
 nut_hoehe     = deckel_dicke + spiel;
 nut_z         = nut_unten + nut_hoehe / 2;
@@ -84,13 +85,13 @@ module deckel() {
             // Platte: genauso groß wie die Öffnung, keine Lasche
             cuboid([deckel_laenge, deckel_breite, deckel_dicke],
                    rounding = 2.5, edges = "Z", anchor = LEFT + BOTTOM);
-            // Zugkante an der Vorderkante, nach oben — gleich hoch wie der Steg.
+            // Zugkante an der Vorderkante, nach oben — so hoch wie der Deckel.
             // Ragt kanten_ueberstand über die Plattenkante hinaus -> sitzt im
-            // geschlossenen Zustand sichtbar im Schlitz (von vorn greifbar).
-            // Breite = Öffnungsbreite: bleibt zwischen den Längswänden (keine Kollision).
-            // um verbund in die Platte überlappen lassen -> union() verschmilzt sauber.
+            // geschlossenen Zustand sichtbar im Schlitz und begrenzt ihn von oben
+            // (bündig mit den Wand-Oberkanten). Breite = Öffnungsbreite (keine
+            // Kollision mit den Längswänden). um verbund überlappen -> union sauber.
             translate([deckel_laenge - kanten_dicke, 0, deckel_dicke - verbund])
-                cuboid([kanten_dicke + kanten_ueberstand, innen_breite - spiel, kantenhoehe + verbund],
+                cuboid([kanten_dicke + kanten_ueberstand, innen_breite - spiel, deckel_dicke + verbund],
                        rounding = 1, edges = "Z", anchor = LEFT + BOTTOM);
         }
     }
@@ -98,5 +99,5 @@ module deckel() {
 
 echo(str("Außenmaß: ", aussen_laenge, " x ", aussen_breite, " x ", aussen_hoehe, " mm"));
 echo(str("Stauraum: ", innen_laenge, " x ", innen_breite, " x ", innen_hoehe, " mm"));
-echo(str("Schlitz:  ", schlitz_unten, "..", schlitz_oben, " mm (Höhe ", schlitz_hoehe, "), Steg: ", kantenhoehe, " mm"));
-echo(str("Deckel:   ", deckel_laenge, " x ", deckel_breite, " x ", deckel_dicke, " mm + Kante ", kantenhoehe, " mm"));
+echo(str("Schlitz:  ", schlitz_unten, "..", schlitz_oben, " mm (Höhe ", schlitz_hoehe, "), offen bis zur Oberkante"));
+echo(str("Deckel:   ", deckel_laenge, " x ", deckel_breite, " x ", deckel_dicke, " mm + Kante ", deckel_dicke, " mm"));
