@@ -1,10 +1,11 @@
 // Render-Helper: Längsschnitt durch die Box (y=0-Ebene), zeigt das Profil:
-// Deckel, Zugkante, Schlitz, Steg und Nuten in einem Schnittbild
+// Deckel, Zugkante, Schlitz und Nuten in einem Schnittbild
 include <BOSL2/std.scad>
+$fn = 48;
 include <schiebedeckel-box.scad>
 difference() {
-    union() { kiste(); deckel(); }
+    schiebedeckel_box();
     // hintere Hälfte (y > 0) wegschneiden
-    translate([0, aussen_breite / 2 + 1, 0])
-        cuboid([aussen_laenge + 2, aussen_breite + 2, aussen_hoehe + 2]);
+    translate([0, tiefe / 2 + 1, 0])
+        cuboid([breite + 2, tiefe + 2, hoehe + 2]);
 }
