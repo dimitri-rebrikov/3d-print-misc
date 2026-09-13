@@ -1,13 +1,13 @@
 $fn = 120; // Hohe Auflösung
 
 // Parameter
-total_length = 60;
-outer_dia    = 41;
+total_length = 80;
+outer_dia    = 42;
 
-entry_dia    = 35.4; // Öffnung außen
-stop_dia     = 34.8; // Verjüngung am Steg
-center_hole  = 32.0; // Innendurchmesser Mittelsteg
-pocket_depth = 29;   // Einstecktiefe pro Seite
+entry_dia    = 36.2; // Öffnung außen
+stop_dia     = 34; // Verjüngung am Steg
+center_hole  = 33.0; // Innendurchmesser Mittelsteg
+pocket_depth = 39;   // Einstecktiefe pro Seite
 chamfer      = 1.5;  // Fase an den Enden
 
 difference() {

@@ -156,8 +156,12 @@ module schiebedeckel_box(
                 // mit der Vorderwand ab. Breite = Öffnungsbreite (keine Kollision
                 // mit den Längswänden). um verbund überlappen -> union sauber.
                 translate([deckel_laenge - kanten_dicke, 0, deckel_dicke - verbund])
+                    // Rundung an die Wandstärke koppeln: muss ≤ kanten_dicke/2 sein,
+                    // sonst schlägt die Assertion schon bei wand = 1 fehl. Für wand ≥ 2
+                    // ist kanten_dicke/2 ≥ 1 → min(...) bleibt 1 → keine Änderung für
+                    // bestehende Modelle. Für wand = 1 wird sie auf 0.5 begrenzt.
                     cuboid([kanten_dicke, innen_breite - spiel, deckel_dicke + verbund],
-                           rounding = 1, edges = "Z", anchor = LEFT + BOTTOM);
+                           rounding = min(1, kanten_dicke / 2), edges = "Z", anchor = LEFT + BOTTOM);
             }
         }
     }
